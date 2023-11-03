@@ -1,0 +1,15 @@
+matplotlib
+numpy
+pandas
+plotly
+pytest
+PyYAML
+scikit-learn
+scrapy
+seaborn
+spacy
+types-PyYAML
+types-requests
+umap-learn
+beautifulsoup4
+termcolor
