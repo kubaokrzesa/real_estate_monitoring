@@ -1,12 +1,11 @@
 import pandas as pd
 import os
 
-from src.scraping import Scraper
-from src.lat_lon_coding import LatLonCoder
+from src.pipeline.scraping import Scraper
+from src.pipeline.lat_lon_coding import LatLonCoder
 from src.utils.get_config import config
 from src.shp_file_downloader import get_shp_files
-from src.paths import (data_directory, initial_links_path,
-                       scraping_output_path,
+from src.paths import (data_directory, scraping_output_path,
                        address_matching_output_path,
                        address_matching_input_path)
 

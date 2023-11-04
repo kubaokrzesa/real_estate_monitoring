@@ -2,8 +2,8 @@ import pandas as pd
 import os
 from pathlib import Path
 
-from src.scraping import Scraper
-from src.lat_lon_coding import LatLonCoder
+from src.pipeline.scraping import Scraper
+from src.pipeline.lat_lon_coding import LatLonCoder
 from src.utils.get_config import config
 from src.shp_file_downloader import get_shp_files
 

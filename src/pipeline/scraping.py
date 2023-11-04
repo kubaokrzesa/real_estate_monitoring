@@ -9,7 +9,7 @@ from src.utils.exceptions import NoLinksException
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 
-from src.pipeline_step_abc import PipelineStepABC
+from src.pipeline.pipeline_step_abc import PipelineStepABC
 
 logger = Logger(__name__).get_logger()
 
