@@ -5,9 +5,9 @@ import pandas as pd
 import time
 import json
 
-from utils.exceptions import NoLinksException
-from utils.setting_logger import Logger
-from utils.get_config import config
+from src.utils.exceptions import NoLinksException
+from src.utils.setting_logger import Logger
+from src.utils.get_config import config
 
 l = Logger(__name__)
 logger = l.get_logger()

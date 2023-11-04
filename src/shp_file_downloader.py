@@ -2,8 +2,8 @@ import requests
 import os
 from urllib.parse import unquote
 import zipfile
-from utils.setting_logger import Logger
-from utils.get_config import config
+from src.utils.setting_logger import Logger
+from src.utils.get_config import config
 
 
 l = Logger(__name__)

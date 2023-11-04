@@ -1,8 +1,8 @@
 import pandas as pd
 from geopy.geocoders import Nominatim
-from utils.setting_logger import Logger
+from src.utils.setting_logger import Logger
 import re
-from utils.get_config import config
+from src.utils.get_config import config
 
 l = Logger(__name__)
 logger = l.get_logger()
