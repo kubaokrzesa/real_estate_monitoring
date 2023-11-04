@@ -1,0 +1,13 @@
+
+# scraping
+headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+
+# lat lon geoencoding
+nominatim_timeout: 10
+nominatim_user_agent: "kubaokrzesa"
+
+# shpefiles
+shp_files_directory_name: "shp_files"
+shp_urls: ["https://www.gis-support.pl/downloads/2022/gminy.zip",
+  "https://www.gis-support.pl/downloads/2022/powiaty.zip"]

@@ -2,12 +2,12 @@ import requests
 import os
 from urllib.parse import unquote
 import zipfile
+from utils.setting_logger import Logger
+from utils.get_config import config
 
 
-shp_files_directory_name = "shp_files"
-
-shp_urls = ["https://www.gis-support.pl/downloads/2022/gminy.zip",
-"https://www.gis-support.pl/downloads/2022/powiaty.zip"]
+l = Logger(__name__)
+logger = l.get_logger()
 
 
 def get_disposition_filename(disposition):
@@ -54,9 +54,9 @@ def unzip_file(zip_file):
 def remove_remaining_zip(zip_file):
     if os.path.exists(zip_file):
         os.remove(zip_file)
-        print(f"File {zip_file} has been deleted")
+        logger.info(f"File {zip_file} has been deleted")
     else:
-        print(f"File {zip_file} does not exist")
+        logger.info(f"File {zip_file} does not exist")
 
 
 def get_shp_files(shp_urls, shp_files_directory_name):
@@ -64,16 +64,16 @@ def get_shp_files(shp_urls, shp_files_directory_name):
 
     for shp_url in shp_urls:
         downloaded_file_path = download_file(shp_url, shp_files_directory_name)
-        print(f'File has been downloaded and saved as: {downloaded_file_path}')
+        logger.info(f'File has been downloaded and saved as: {downloaded_file_path}')
 
         output_dir_name = unzip_file(downloaded_file_path)
-        print(f'File has been unzipped to: {output_dir_name}')
+        logger.info(f'File has been unzipped to: {output_dir_name}')
 
         remove_remaining_zip(downloaded_file_path)
 
 
 if __name__ == "__main__":
-    get_shp_files(shp_urls, shp_files_directory_name)
+    get_shp_files(config.shp_urls, config.shp_files_directory_name)
 
 
 

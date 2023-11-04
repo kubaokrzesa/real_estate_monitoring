@@ -7,12 +7,10 @@ import json
 
 from utils.exceptions import NoLinksException
 from utils.setting_logger import Logger
+from utils.get_config import config
 
 l = Logger(__name__)
 logger = l.get_logger()
-
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 
 
 class Scraper:
@@ -20,16 +18,18 @@ class Scraper:
     def __init__(self, max_page_num=10):
         self.df = None
         self.links = []
+        # TODO: automatic max page num finder
         self.max_page_num = max_page_num
 
     def collect_links_list(self):
         logger.info(f"Collecting links to real estate offers")
         for page_num in range(self.max_page_num):
+            # TODO: move to config
             base_link = f"https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/wiele-lokalizacji?locations=%5Bmazowieckie%2Cmazowieckie%2Fwarszawa%2Fwarszawa%2Fwarszawa%5D&viewType=listing&limit=72&page={str(page_num)}"
             url = base_link
             logger.info(f"Visiting page with offers number {str(page_num)}, url: {url}")
 
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=config.headers)
             selector = Selector(response)
 
             listings = selector.xpath("//a[@data-cy='listing-item-link']/@href")
@@ -92,7 +92,7 @@ def _extract_info_from_link(link):
 
     logger.info(f"analyzing {link_full}")
 
-    response = requests.get(link_full, headers=headers)
+    response = requests.get(link_full, headers=config.headers)
     selector = Selector(response)
 
     result = {}

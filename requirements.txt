@@ -13,3 +13,4 @@ types-requests
 umap-learn
 beautifulsoup4
 termcolor
+python-box

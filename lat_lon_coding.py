@@ -2,13 +2,10 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 from utils.setting_logger import Logger
 import re
+from utils.get_config import config
 
 l = Logger(__name__)
 logger = l.get_logger()
-
-
-nominatim_timeout = 10
-nominatim_user_agent = "kubaokrzesa"
 
 
 class LatLonCoder:
@@ -24,7 +21,7 @@ class LatLonCoder:
         ### Ul. in address confuses geolocator
         address = address.replace("Ul. ", "").replace("ul. ", "").strip()
         logger.info(f"Cleaned address: {address}")
-        geolocator = Nominatim(timeout=nominatim_timeout, user_agent=nominatim_user_agent)
+        geolocator = Nominatim(timeout=config.nominatim_timeout, user_agent=config.nominatim_user_agent)
         location = geolocator.geocode(address)
         if location is None:
             address = ", ".join(address.split(', ')[1:])
