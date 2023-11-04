@@ -3,17 +3,16 @@ from geopy.geocoders import Nominatim
 from src.utils.setting_logger import Logger
 import re
 from src.utils.get_config import config
+from src.pipeline_step_abc import PipelineStepABC
 
-l = Logger(__name__)
-logger = l.get_logger()
+logger = Logger(__name__).get_logger()
 
 
-class LatLonCoder:
+class LatLonCoder(PipelineStepABC):
 
-    def __init__(self, df):
+    def load_previous_step_data(self, df):
         self.df = df
         self.df = self.df.dropna(subset=['adress'])
-        self.encoded_addresses = None
 
     @staticmethod
     def _locate_address(address):
@@ -37,7 +36,7 @@ class LatLonCoder:
             res_dict = {'address': address, 'latitude': None, 'longitude': None}
             return res_dict
 
-    def locate_addresses(self):
+    def execute_step(self):
         total_cases = self.df.shape[0]
         cases_done = 0
 
@@ -57,9 +56,5 @@ class LatLonCoder:
         except KeyboardInterrupt:
             logger.info("User interrupted the process. Exiting...")
         finally:
-            self.encoded_addresses = pd.DataFrame(res_list)
-
-    def save_encoded_lat_lon(self, path):
-        logger.info(f"Saving geocoding results to: {path}")
-        self.encoded_addresses.to_csv(path)
+            self.df_out = pd.DataFrame(res_list)
 

@@ -29,19 +29,16 @@ max_page_num = 2 #243
 os.makedirs(data_directory, exist_ok=True)
 
 if module_scraping:
-    scraper = Scraper(max_page_num=max_page_num)
-    scraper.collect_links_list()
-    scraper.save_link_list(initial_links_path)
-    scraper.extract_info_from_links()
+    scraper = Scraper(max_page_num=config.max_page_num)
+    scraper.execute_step()
     scraper.save_results(scraping_output_path)
 
 if module_lat_lon_coding:
-
     df_adr = pd.read_csv(address_matching_input_path, usecols=['link', 'adress'])
-
-    lat_lon_coder = LatLonCoder(df=df_adr)
-    lat_lon_coder.locate_addresses()
-    lat_lon_coder.save_encoded_lat_lon(address_matching_output_path)
+    lat_lon_coder = LatLonCoder()
+    lat_lon_coder.load_previous_step_data(df_adr)
+    lat_lon_coder.execute_step()
+    lat_lon_coder.save_results(address_matching_output_path)
 
 if module_get_shp_files:
     get_shp_files(config.shp_urls, shp_files_directory_name)

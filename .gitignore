@@ -161,3 +161,6 @@ cython_debug/
 /data/
 /data_full/
 /shp_files/
+/draft.ipynb
+/tests/test_shp/
+/tests/data_test/

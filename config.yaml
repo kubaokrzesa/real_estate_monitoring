@@ -16,4 +16,5 @@ nominatim_user_agent: "kubaokrzesa"
 # shpefiles
 shp_files_directory_name: "shp_files"
 shp_urls: ["https://www.gis-support.pl/downloads/2022/gminy.zip",
-  "https://www.gis-support.pl/downloads/2022/powiaty.zip"]
+  "https://www.gis-support.pl/downloads/2022/powiaty.zip",
+"https://www.gis-support.pl/downloads/2022/jednostki_ewidencyjne.zip"]

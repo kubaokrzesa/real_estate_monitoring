@@ -6,8 +6,7 @@ from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 
 
-l = Logger(__name__)
-logger = l.get_logger()
+logger = Logger(__name__).get_logger()
 
 
 def get_disposition_filename(disposition):

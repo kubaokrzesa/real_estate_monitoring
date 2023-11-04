@@ -9,17 +9,25 @@ from src.utils.exceptions import NoLinksException
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 
-l = Logger(__name__)
-logger = l.get_logger()
+from src.pipeline_step_abc import PipelineStepABC
+
+logger = Logger(__name__).get_logger()
 
 
-class Scraper:
+class Scraper(PipelineStepABC):
 
     def __init__(self, max_page_num=10):
-        self.df = None
+        super().__init__()
         self.links = []
         # TODO: automatic max page num finder
         self.max_page_num = max_page_num
+
+    def execute_step(self):
+        self.collect_links_list()
+        self.extract_info_from_links()
+
+    def load_previous_step_data(self):
+        pass
 
     def collect_links_list(self):
         logger.info(f"Collecting links to real estate offers")
@@ -80,11 +88,7 @@ class Scraper:
             logger.info("User interrupted the process. Exiting...")
             self.save_link_list("remaining_links.json")
         finally:
-            self.df = pd.DataFrame(res_ls)
-
-    def save_results(self, file_name):
-        logger.info(f"Saving data table as {file_name}")
-        self.df.to_csv(file_name)
+            self.df_out = pd.DataFrame(res_ls)
 
 
 def _extract_info_from_link(link):
