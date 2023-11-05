@@ -2,7 +2,7 @@
 module_scraping: True
 module_lat_lon_coding: True
 module_get_shp_files: True
-
+module_extract_geo_features: True
 
 # scraping
 max_page_num: 1 #243

@@ -6,12 +6,14 @@ from src.pipeline.scraping import Scraper
 from src.pipeline.lat_lon_coding import LatLonCoder
 from src.utils.get_config import config
 from src.shp_file_downloader import get_shp_files
+from src.pipeline.geo_feature_extraction import GeoFeatureExtractor
 
 
 #
 module_scraping = True
 module_lat_lon_coding = True
 module_get_shp_files = True
+module_extract_geo_features = True
 
 data_directory = Path('tests/data_test')
 shp_files_directory_name = "tests/test_shp"
@@ -21,9 +23,11 @@ scraping_output_path = data_directory / "offers.csv"
 address_matching_output_path = data_directory / "geocoded_addresses.csv"
 
 address_matching_input_path = data_directory / "offers.csv"
-# "data/offers_full.csv"
 
-max_page_num = 2 #243
+geo_features_input_path = data_directory / "geocoded_addresses.csv"
+geo_feature_output_path = data_directory / "geo_features.csv"
+
+max_page_num = 1 #243
 #
 
 os.makedirs(data_directory, exist_ok=True)
@@ -42,3 +46,11 @@ if module_lat_lon_coding:
 
 if module_get_shp_files:
     get_shp_files(config.shp_urls, shp_files_directory_name)
+
+if module_extract_geo_features:
+    gdf = pd.read_csv(geo_features_input_path,
+                      usecols=['link', 'address', 'latitude', 'longitude'])
+    geo_feature_extractor = GeoFeatureExtractor()
+    geo_feature_extractor.load_previous_step_data(gdf)
+    geo_feature_extractor.execute_step()
+    geo_feature_extractor.save_results(geo_feature_output_path)
