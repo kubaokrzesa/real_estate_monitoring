@@ -26,7 +26,7 @@ def extract_floor(val_str, max_floor=False):
         idx = 1
     else:
         idx = 0
-    if val_str is np.nan:
+    if val_str is None or pd.isna(val_str):
         return np.nan
     elif '/' not in val_str:
         val_str = val_str.replace('parter', '0')
@@ -48,8 +48,10 @@ def extract_floor(val_str, max_floor=False):
 
 
 def convert_col_to_num(val_str):
-    if val_str is np.nan:
+    if val_str is None or pd.isna(val_str):
         return np.nan
+    elif type(val_str) in (int, float):
+        return val_str
     else:
         numbers = re.findall('[\d,]+', val_str)
         numbers = ''.join(numbers)

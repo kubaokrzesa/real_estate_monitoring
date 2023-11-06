@@ -1,9 +1,9 @@
 # modules to run
-module_scraping: False
+module_scraping: True
 module_data_cleaning: True
-module_lat_lon_coding: False
-module_get_shp_files: False
-module_extract_geo_features: False
+module_lat_lon_coding: True
+module_get_shp_files: True
+module_extract_geo_features: True
 
 # scraping
 max_page_num: 1 #243
