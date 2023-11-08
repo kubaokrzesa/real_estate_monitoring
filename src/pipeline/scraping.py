@@ -86,12 +86,6 @@ class Scraper(PipelineStepABC):
             self.df_out['survey_id'] = self.survey_id
             self.upload_results_to_db()
 
-    def upload_results_to_db(self):
-        logger.info(f"Uploading results to database, table: {self.output_table}")
-        with sqlite3.connect(self.db) as conn:
-            self.df_out.to_sql(self.output_table, conn, if_exists='append', index=False)
-        logger.info(f"Results uploaded successfully")
-
 
 def _extract_info_from_link(link):
     link_full = 'https://www.otodom.pl/' + link
