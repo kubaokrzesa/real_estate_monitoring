@@ -1,6 +1,6 @@
 # if new survey, provide survey params
-new_survey: False
-survey_type: 'test' # 'full', 'incremental'
+new_survey: True
+survey_type: 'test_max_page' # 'test' # 'full', 'incremental'
 location: 'warsaw'
 max_page_num: 2 #243 # limit page num for testing purposes
 
@@ -17,6 +17,8 @@ module_extract_geo_features: False
 sqlite_db: "data/real_estate.db"
 
 # scraping
+base_link: "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/wiele-lokalizacji?locations=%5Bmazowieckie%2Cmazowieckie%2Fwarszawa%2Fwarszawa%2Fwarszawa%5D&viewType=listing&limit=72&page={}"
+
 headers: {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 
