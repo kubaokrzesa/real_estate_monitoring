@@ -16,3 +16,7 @@ termcolor
 python-box
 geopandas
 unidecode
+xgboost
+shap
+bayesian-optimization
+optuna
