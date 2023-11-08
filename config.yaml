@@ -1,6 +1,6 @@
 # if new survey, provide survey params
 new_survey: True
-survey_type: 'test_max_page' # 'test' # 'full', 'incremental'
+survey_type: 'incremental' # 'test' # 'full', 'incremental', 'test_max_page'
 location: 'warsaw'
 max_page_num: 2 #243 # limit page num for testing purposes
 

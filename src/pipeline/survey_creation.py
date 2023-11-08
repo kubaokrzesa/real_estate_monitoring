@@ -80,7 +80,16 @@ class SurveyCreator:
         logger.info(f"Total number of links collected: {str(len(self.links))}")
 
     def clean_and_save_links_to_db(self):
+        logger.info(f"Removing duplicated links")
         links_unique = list(set(self.links))
+        if self.survey_type == 'incremental':
+            logger.info(f"Incremental survey, removing links already present in scraped_offers")
+            with sqlite3.connect(self.db) as conn:
+                d = pd.read_sql_query("select distinct link from scraped_offers", conn)
+            d = d['link'].apply(lambda x: x.replace('https://www.otodom.pl/', ''))
+
+            links_unique = [item for item in links_unique if item not in d.values]
+        logger.info(f"Number of links after processing: {str(len(links_unique))}")
         self.df_out = pd.DataFrame({'survey_id': [self.survey_id] * len(links_unique), 'link': links_unique})
         logger.info(f"Uploading links to database")
         with sqlite3.connect(self.db) as conn:
