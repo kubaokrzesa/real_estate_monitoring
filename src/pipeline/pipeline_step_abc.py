@@ -18,6 +18,10 @@ class PipelineStepABC(ABC):
     def load_previous_step_data(self):
         pass
 
+#    @abstractmethod
+#    def upload_results_to_db(self):
+#        pass
+
     def save_results(self, file_name):
         logger.info(f"Saving data table as {file_name}")
         self.df_out.to_csv(file_name)

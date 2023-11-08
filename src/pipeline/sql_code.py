@@ -26,3 +26,39 @@ CREATE TABLE IF NOT EXISTS survey_links
 )
 
 """
+
+scraped_offers_tab_creation = """
+CREATE TABLE IF NOT EXISTS scraped_offers
+(
+    survey_id TEXT,
+    link TEXT,
+    title TEXT,
+    price TEXT,
+    adress TEXT,
+    sq_m_price TEXT,
+    area TEXT,
+    ownership_type TEXT,
+    n_rooms TEXT,
+    state TEXT,
+    floor TEXT,
+    rent TEXT,
+    remote TEXT,
+    balcony TEXT,
+    heating TEXT,
+    parking TEXT,
+    market TEXT,
+    offerent_type TEXT,
+    available_from TEXT,
+    year_built TEXT,
+    building_type TEXT,
+    windows TEXT,
+    elevator TEXT,
+    media TEXT,
+    safety TEXT,
+    equipment TEXT,
+    additional_info TEXT,
+    building_material TEXT,
+    description TEXT,
+    UNIQUE(survey_id, link)
+)
+"""

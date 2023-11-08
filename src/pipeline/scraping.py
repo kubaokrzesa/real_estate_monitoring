@@ -5,7 +5,8 @@ import pandas as pd
 import time
 import json
 
-from src.utils.exceptions import NoLinksException
+import sqlite3
+from src.utils.exceptions import NoLinksException, UserInterruptException, AllLinksProcessedException, EmptySurveyException
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 
@@ -16,45 +17,39 @@ logger = Logger(__name__).get_logger()
 
 class Scraper(PipelineStepABC):
 
-    def __init__(self, max_page_num=10):
+    def __init__(self, db, survey_id):
         super().__init__()
+        self.db = db
+        self.survey_id = survey_id
         self.links = []
-        # TODO: automatic max page num finder
-        self.max_page_num = max_page_num
+        self.output_table = "scraped_offers"
 
     def execute_step(self):
-        self.collect_links_list()
+        self.load_previous_step_data()
         self.extract_info_from_links()
 
     def load_previous_step_data(self):
-        pass
+        # this query returns links in the current survey, that have not yet been processed. If a given link is in the scraped_offers for this survey, it won't be returned
+        query = f"""
+        with temp_links as (select survey_id, link, 'https://www.otodom.pl/' || link link_new from survey_links)
+        select survey_id, link, link_new from temp_links
+        where (survey_id ='{self.survey_id}') and (link_new not in (select link from scraped_offers where survey_id ='{self.survey_id}'));
+        """
+        with sqlite3.connect(self.db) as conn:
+            self.df = pd.read_sql_query(query, conn)
+            of_cnt = pd.read_sql_query(f"select count(*) of_cnt from scraped_offers where survey_id = '{self.survey_id}'", conn)
+            l_cnt = pd.read_sql_query(f"select count(*) l_cnt from survey_links where survey_id = '{self.survey_id}'", conn)
+        of_cnt = of_cnt['of_cnt'].iloc[0]
+        l_cnt = l_cnt['l_cnt'].iloc[0]
+        left_to_process = l_cnt - of_cnt
+        logger.info(f"{left_to_process}/{l_cnt} links left to process in survey {self.survey_id}")
+        if l_cnt == 0:
+            raise EmptySurveyException(f"Survey {self.survey_id} has no corresponding links in the links table")
 
-    def collect_links_list(self):
-        logger.info(f"Collecting links to real estate offers")
-        for page_num in range(self.max_page_num):
-            # TODO: move to config
-            base_link = f"https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/wiele-lokalizacji?locations=%5Bmazowieckie%2Cmazowieckie%2Fwarszawa%2Fwarszawa%2Fwarszawa%5D&viewType=listing&limit=72&page={str(page_num)}"
-            url = base_link
-            logger.info(f"Visiting page with offers number {str(page_num)}, url: {url}")
+        if left_to_process == 0:
+            raise AllLinksProcessedException(f"All links in {self.survey_id} have already been processed and saved to database")
+        self.links = self.df['link'].to_list()
 
-            response = requests.get(url, headers=config.headers)
-            selector = Selector(response)
-
-            listings = selector.xpath("//a[@data-cy='listing-item-link']/@href")
-
-            links_list = [listing.get() for listing in listings]
-            self.links.extend(links_list)
-        logger.info(f"Total number of links collected: {str(len(self.links))}")
-
-    def save_link_list(self, file_name):
-        logger.info(f"Saving links list as {file_name}")
-        with open(file_name, 'w') as file:
-            json.dump(self.links, file)
-
-    def load_link_list(self, file_name):
-        logger.info(f"Loading links list from {file_name}")
-        with open(file_name, 'r') as file:
-            self.links = json.load(file)
 
     def extract_info_from_links(self):
         logger.info(f"Iterating links to extract information")
@@ -82,13 +77,20 @@ class Scraper(PipelineStepABC):
                             pass
                     if i == 10:
                         logger.info(f"Maximum retries reached, breaking")
-                        self.save_link_list("remaining_links.json")
                         break
         except KeyboardInterrupt:
             logger.info("User interrupted the process. Exiting...")
-            self.save_link_list("remaining_links.json")
+            raise UserInterruptException
         finally:
             self.df_out = pd.DataFrame(res_ls)
+            self.df_out['survey_id'] = self.survey_id
+            self.upload_results_to_db()
+
+    def upload_results_to_db(self):
+        logger.info(f"Uploading results to database, table: {self.output_table}")
+        with sqlite3.connect(self.db) as conn:
+            self.df_out.to_sql(self.output_table, conn, if_exists='append', index=False)
+        logger.info(f"Results uploaded successfully")
 
 
 def _extract_info_from_link(link):

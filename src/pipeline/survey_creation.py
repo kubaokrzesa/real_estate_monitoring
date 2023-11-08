@@ -3,16 +3,9 @@ import sqlite3
 
 import requests
 from scrapy import Selector
-from bs4 import BeautifulSoup
 import pandas as pd
-import time
-import json
-
-from src.utils.exceptions import NoLinksException
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
-
-from src.pipeline.pipeline_step_abc import PipelineStepABC
 
 from src.pipeline.sql_code import survey_table_insert
 
