@@ -1,12 +1,16 @@
 # modules to run
-module_scraping: True
-module_data_cleaning: True
-module_lat_lon_coding: True
-module_get_shp_files: True
-module_extract_geo_features: True
+module_scraping: False
+module_data_cleaning: False
+module_lat_lon_coding: False
+module_get_shp_files: False
+module_extract_geo_features: False
+
+sqlite_db: "data/real_estate.db"
+
+survey_to_continue: test_2023-11-08_warsaw_1
 
 # scraping
-max_page_num: 1 #243
+max_page_num: 2 #243
 headers: {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 

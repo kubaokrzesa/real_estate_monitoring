@@ -7,10 +7,30 @@ from src.pipeline.lat_lon_coding import LatLonCoder
 from src.pipeline.geo_feature_extraction import GeoFeatureExtractor
 from src.utils.get_config import config
 from src.shp_file_downloader import get_shp_files
+from src.pipeline.sqlite_creation import create_sqlite_db
+from src.pipeline.survey_creation import SurveyCreator
 import src.paths as paths
 
 
+db = config.sqlite_db
+
 os.makedirs(paths.data_directory, exist_ok=True)
+create_sqlite_db(db)
+
+create_survey = True
+
+survey_type = 'test'
+location = 'warsaw'
+
+if create_survey:
+    survey_creator = SurveyCreator(db, survey_type, location, max_page_num=config.max_page_num)
+    survey_creator.create_survey_in_table()
+    survey_creator.collect_links_list()
+    survey_creator.clean_and_save_links_to_db()
+
+    survey_id = survey_creator.survey_id
+else:
+    survey_id = config.survey_to_continue
 
 if config.module_scraping:
     scraper = Scraper(max_page_num=config.max_page_num)
