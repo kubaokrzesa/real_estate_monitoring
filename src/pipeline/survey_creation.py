@@ -55,7 +55,7 @@ class SurveyCreator:
 
     def create_survey_in_table(self):
         logger.info(f"Creating survey in database")
-        db_entry = (self.survey_id, self.survey_date, self.survey_type, self.location, 0)
+        db_entry = (self.survey_id, self.survey_date, self.survey_type, self.location, self.n_pages)
 
         with sqlite3.connect(self.db) as conn:
             cur = conn.cursor()
