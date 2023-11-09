@@ -204,3 +204,23 @@ CREATE TABLE IF NOT EXISTS geocoded_adr
     UNIQUE(survey_id, link)
 )
 """
+
+geo_feature_tab_creation = """
+CREATE TABLE IF NOT EXISTS geo_features
+(
+    survey_id TEXT,
+    link TEXT,
+    address TEXT,
+    latitude REAL,
+    longitude REAL,
+    warsaw_district TEXT,
+    powiat TEXT,
+    location TEXT,
+    in_warsaw INTEGER,
+    center_dist REAL,
+    closest_metro TEXT,
+    metro_dist REAL,
+    UNIQUE(survey_id, link)
+)
+"""
+

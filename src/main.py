@@ -52,9 +52,5 @@ if config.module_get_shp_files:
     get_shp_files(config.shp_urls, config.shp_files_directory_name)
 
 if config.module_extract_geo_features:
-    gdf = pd.read_csv(paths.geo_features_input_path,
-                      usecols=['link', 'address', 'latitude', 'longitude'])
-    geo_feature_extractor = GeoFeatureExtractor()
-    geo_feature_extractor.load_previous_step_data(gdf)
+    geo_feature_extractor = GeoFeatureExtractor(db=db, survey_id=survey_id)
     geo_feature_extractor.execute_step()
-    geo_feature_extractor.save_results(paths.geo_feature_output_path)

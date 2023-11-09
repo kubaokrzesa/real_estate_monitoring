@@ -12,8 +12,8 @@ logger = Logger(__name__).get_logger()
 
 class GeoFeatureExtractor(PipelineStepABC):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, db, survey_id):
+        super().__init__(db=db, survey_id=survey_id)
         # TODO move to paths
         self.powiaty = gpd.read_file("shp_files/powiaty")[["JPT_NAZWA_", "geometry"]]
         self.gminy = gpd.read_file("shp_files/gminy")[["JPT_NAZWA_", "geometry"]]
@@ -29,12 +29,14 @@ class GeoFeatureExtractor(PipelineStepABC):
         self.warsaw_center = Point(21.006209576726654, 52.230931183433256)
         self.warsaw_center = convert_point_to_crs(self.warsaw_center,
                                                   new_crs=self.warszawa_dzielnice.crs, base_crs='EPSG:4326')
+        self.query = f"select * from geocoded_adr where survey_id = '{self.survey_id}'"
+        self.output_table = 'geo_features'
 
-    def load_previous_step_data(self, df):
-        self.df = df.drop_duplicates(subset=['link'])
+    def load_previous_step_data(self):
+        super().load_previous_step_data()
         self.df = convert_df_to_geo(self.df, self.warszawa_dzielnice.crs, base_crs='EPSG:4326')
 
-    def execute_step(self):
+    def process(self):
         gdf_augmented = self.df.sjoin(self.warszawa_dzielnice, how='left', predicate='within').drop(columns=['index_right'])
         gdf_augmented = gdf_augmented.sjoin(self.powiaty, how='left', predicate='within').drop(
             columns=['index_right']).rename(
