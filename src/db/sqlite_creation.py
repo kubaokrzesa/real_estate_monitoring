@@ -1,9 +1,9 @@
 import sqlite3
 from src.utils.setting_logger import Logger
-from src.pipeline.sql_code import (survey_tab_creation, survey_links_tab_creation,
-                                   scraped_offers_tab_creation, numeric_feature_tab_creation,
-                                   categorical_feature_tab_creation, label_feature_tab_creation,
-                                   geocoded_adr_tab_creation, geo_feature_tab_creation)
+from src.db.sql_code import (survey_tab_creation, survey_links_tab_creation,
+                             scraped_offers_tab_creation, numeric_feature_tab_creation,
+                             categorical_feature_tab_creation, label_feature_tab_creation,
+                             geocoded_adr_tab_creation, geo_feature_tab_creation)
 
 logger = Logger(__name__).get_logger()
 

@@ -6,7 +6,7 @@ from src.pipeline.scraping import Scraper
 from src.pipeline.lat_lon_coding import LatLonCoder
 from src.pipeline.data_cleaning import NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner
 from src.utils.get_config import config
-from src.shp_file_downloader import get_shp_files
+from src.special_steps.shp_file_downloader import get_shp_files
 from src.pipeline.geo_feature_extraction import GeoFeatureExtractor
 
 

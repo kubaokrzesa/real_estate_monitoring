@@ -7,7 +7,7 @@ import pandas as pd
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 
-from src.pipeline.sql_code import survey_table_insert
+from src.db.sql_code import survey_table_insert
 
 logger = Logger(__name__).get_logger()
 

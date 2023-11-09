@@ -1,15 +1,14 @@
-import pandas as pd
 import os
 
 from src.utils.setting_logger import Logger
-from src.pipeline.survey_creation import SurveyCreator
+from src.special_steps.survey_creation import SurveyCreator
 from src.pipeline.scraping import Scraper
 from src.pipeline.data_cleaning import NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner
 from src.pipeline.lat_lon_coding import LatLonCoder
 from src.pipeline.geo_feature_extraction import GeoFeatureExtractor
 from src.utils.get_config import config
-from src.shp_file_downloader import get_shp_files
-from src.pipeline.sqlite_creation import create_sqlite_db
+from src.special_steps.shp_file_downloader import get_shp_files
+from src.db.sqlite_creation import create_sqlite_db
 from src.utils.db_utils import check_if_survey_exists
 import src.paths as paths
 
