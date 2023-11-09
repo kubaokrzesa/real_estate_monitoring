@@ -192,3 +192,15 @@ CREATE TABLE IF NOT EXISTS label_features
     UNIQUE(survey_id, link)
 )
 """
+
+geocoded_adr_tab_creation = """
+CREATE TABLE IF NOT EXISTS geocoded_adr
+(
+    survey_id TEXT,
+    link TEXT,
+    address TEXT,
+    latitude REAL,
+    longitude REAL,
+    UNIQUE(survey_id, link)
+)
+"""

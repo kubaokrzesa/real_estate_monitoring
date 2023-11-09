@@ -45,11 +45,8 @@ if config.module_data_cleaning:
         cleaner.execute_step()
 
 if config.module_lat_lon_coding:
-    df_adr = pd.read_csv(paths.address_matching_input_path, usecols=['link', 'adress'])
-    lat_lon_coder = LatLonCoder()
-    lat_lon_coder.load_previous_step_data(df_adr)
+    lat_lon_coder = LatLonCoder(db=db, survey_id=survey_id)
     lat_lon_coder.execute_step()
-    lat_lon_coder.save_results(paths.address_matching_output_path)
 
 if config.module_get_shp_files:
     get_shp_files(config.shp_urls, config.shp_files_directory_name)

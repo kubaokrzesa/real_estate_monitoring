@@ -18,7 +18,7 @@ logger = Logger(__name__).get_logger()
 class DataCleaner(PipelineStepABC):
 
     def __init__(self, db, survey_id):
-        super().__init__()
+        super().__init__(db, survey_id)
         self.cat_vars = ['ownership_type', 'state', 'remote',
                          'heating', 'parking', 'market', 'offerent_type', 'building_type', 'windows',
                          'elevator', 'building_material']
@@ -29,9 +29,6 @@ class DataCleaner(PipelineStepABC):
                            'additional_info']
         self.num_cols = ['price', 'sq_m_price', 'area', 'n_rooms', 'rent']
         self.current_year = datetime.now().year
-        self.db = db
-        self.survey_id = survey_id
-        self.query = f"select * from scraped_offers where survey_id='{self.survey_id}'"
 
     def process(self):
         pass

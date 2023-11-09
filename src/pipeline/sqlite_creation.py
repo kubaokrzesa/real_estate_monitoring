@@ -4,7 +4,8 @@ import pandas as pd
 from src.utils.setting_logger import Logger
 from src.pipeline.sql_code import (survey_tab_drop, survey_tab_creation, survey_table_insert, survey_links_tab_creation,
                                    scraped_offers_tab_creation, numeric_feature_tab_creation,
-                                   categorical_feature_tab_creation, label_feature_tab_creation)
+                                   categorical_feature_tab_creation, label_feature_tab_creation,
+                                   geocoded_adr_tab_creation)
 
 logger = Logger(__name__).get_logger()
 
@@ -25,6 +26,7 @@ def create_sqlite_db(db):
         cur.execute(categorical_feature_tab_creation)
         cur.execute(label_feature_tab_creation)
 
+        cur.execute(geocoded_adr_tab_creation)
 
         conn.commit()
     logger.info("Database created successfully")

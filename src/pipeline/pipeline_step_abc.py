@@ -7,11 +7,12 @@ logger = Logger(__name__).get_logger()
 
 
 class PipelineStepABC(ABC):
-    def __init__(self):
+    def __init__(self, db, survey_id):
         self.df = None
         self.df_out = None
-        self.db = None
-        self.survey_id = None
+        self.db = db
+        self.survey_id = survey_id
+        self.query = f"select * from scraped_offers where survey_id='{self.survey_id}'"
 
     @abstractmethod
     def execute_step(self):

@@ -8,10 +8,11 @@ logger = Logger(__name__).get_logger()
 
 
 class LatLonCoder(PipelineStepABC):
-
-    def load_previous_step_data(self, df):
-        self.df = df
-        self.df = self.df.dropna(subset=['adress'])
+    def __init__(self, db, survey_id):
+        super().__init__(db, survey_id)
+        self.output_table = 'geocoded_adr'
+        self.query = f"""select * from scraped_offers
+         where survey_id='{self.survey_id}' and adress is not null"""
 
     @staticmethod
     def _locate_address(address):
@@ -36,6 +37,11 @@ class LatLonCoder(PipelineStepABC):
             return res_dict
 
     def execute_step(self):
+        self.load_previous_step_data()
+        self.process()
+        self.upload_results_to_db()
+
+    def process(self):
         total_cases = self.df.shape[0]
         cases_done = 0
 
