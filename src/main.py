@@ -20,6 +20,10 @@ db = config.sqlite_db
 os.makedirs(paths.data_directory, exist_ok=True)
 create_sqlite_db(db)
 
+# TODO write automatic checker
+if config.module_get_shp_files:
+    get_shp_files(config.shp_urls, config.shp_files_directory_name)
+
 
 if config.new_survey:
     survey_creator = SurveyCreator(db, config.survey_type, config.location, max_page_num=config.max_page_num)
@@ -41,15 +45,15 @@ if config.module_data_cleaning:
     cleaners = [NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner]
 
     for Cleaner in cleaners:
-        cleaner = Cleaner(db=db, survey_id=survey_id)
-        cleaner.execute_step()
+        if Cleaner.__name__ in config.excluded_cleaners:
+            continue
+        else:
+            cleaner = Cleaner(db=db, survey_id=survey_id)
+            cleaner.execute_step()
 
 if config.module_lat_lon_coding:
     lat_lon_coder = LatLonCoder(db=db, survey_id=survey_id)
     lat_lon_coder.execute_step()
-
-if config.module_get_shp_files:
-    get_shp_files(config.shp_urls, config.shp_files_directory_name)
 
 if config.module_extract_geo_features:
     geo_feature_extractor = GeoFeatureExtractor(db=db, survey_id=survey_id)

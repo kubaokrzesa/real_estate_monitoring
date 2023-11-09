@@ -1,18 +1,22 @@
 # if new survey, provide survey params
 new_survey: True
-survey_type: 'incremental' # 'test' # 'full', 'incremental', 'test_max_page'
+survey_type: 'incremental' #  # 'test' # 'full', 'incremental', 'test_max_page'
 location: 'warsaw'
 max_page_num: 2 #243 # limit page num for testing purposes
 
 # if you want to continue survey, choose which one
-survey_to_continue: test_2023-11-08_warsaw_15
+survey_to_continue: incremental_2023-11-09_warsaw_1 # incremental_2023-11-08_warsaw_1 #base_full_survey # incremental_2023-11-08_warsaw_1
 
 # modules to run
 module_scraping: True
-module_data_cleaning: False
-module_lat_lon_coding: False
+module_data_cleaning: True
+excluded_cleaners: [] # [] ['NumericDataCleaner', 'CategoricalDataCleaner', 'LabelDataCleaner']
+module_lat_lon_coding: True
+module_extract_geo_features: True
+module_make_dummy_geo_features: True
+
+# needed only the first time
 module_get_shp_files: False
-module_extract_geo_features: False
 
 sqlite_db: "data/real_estate.db"
 
