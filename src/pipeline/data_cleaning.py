@@ -30,14 +30,6 @@ class DataCleaner(PipelineStepABC):
         self.num_cols = ['price', 'sq_m_price', 'area', 'n_rooms', 'rent']
         self.current_year = datetime.now().year
 
-    def process(self):
-        pass
-
-    def execute_step(self):
-        self.load_previous_step_data()
-        self.process()
-        self.upload_results_to_db()
-
 
 class NumericDataCleaner(DataCleaner):
     def __init__(self, db, survey_id):

@@ -36,11 +36,6 @@ class LatLonCoder(PipelineStepABC):
             res_dict = {'address': address, 'latitude': None, 'longitude': None}
             return res_dict
 
-    def execute_step(self):
-        self.load_previous_step_data()
-        self.process()
-        self.upload_results_to_db()
-
     def process(self):
         total_cases = self.df.shape[0]
         cases_done = 0

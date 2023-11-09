@@ -18,25 +18,25 @@ logger = Logger(__name__).get_logger()
 class Scraper(PipelineStepABC):
 
     def __init__(self, db, survey_id):
-        super().__init__()
-        self.db = db
-        self.survey_id = survey_id
+        super().__init__(db, survey_id)
         self.links = []
         self.output_table = "scraped_offers"
-
-    def execute_step(self):
-        self.load_previous_step_data()
-        self.extract_info_from_links()
-
-    def load_previous_step_data(self):
         # this query returns links in the current survey, that have not yet been processed. If a given link is in the scraped_offers for this survey, it won't be returned
-        query = f"""
+        self.query = f"""
         with temp_links as (select survey_id, link, 'https://www.otodom.pl/' || link link_new from survey_links)
         select survey_id, link, link_new from temp_links
         where (survey_id ='{self.survey_id}') and (link_new not in (select link from scraped_offers where survey_id ='{self.survey_id}'));
         """
+
+    def execute_step(self):
+        self.load_previous_step_data()
+        self.process()
+
+    def load_previous_step_data(self):
+        super().load_previous_step_data()
+
+        # Validity checks
         with sqlite3.connect(self.db) as conn:
-            self.df = pd.read_sql_query(query, conn)
             of_cnt = pd.read_sql_query(f"select count(*) of_cnt from scraped_offers where survey_id = '{self.survey_id}'", conn)
             l_cnt = pd.read_sql_query(f"select count(*) l_cnt from survey_links where survey_id = '{self.survey_id}'", conn)
         of_cnt = of_cnt['of_cnt'].iloc[0]
@@ -45,13 +45,13 @@ class Scraper(PipelineStepABC):
         logger.info(f"{left_to_process}/{l_cnt} links left to process in survey {self.survey_id}")
         if l_cnt == 0:
             raise EmptySurveyException(f"Survey {self.survey_id} has no corresponding links in the links table")
-
         if left_to_process == 0:
             raise AllLinksProcessedException(f"All links in {self.survey_id} have already been processed and saved to database")
+
+        # Loading links to list
         self.links = self.df['link'].to_list()
 
-
-    def extract_info_from_links(self):
+    def process(self):
         logger.info(f"Iterating links to extract information")
         if not self.links:
             raise NoLinksException("The list of links is empty, fill it before iterating")

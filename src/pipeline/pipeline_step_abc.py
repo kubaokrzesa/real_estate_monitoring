@@ -15,8 +15,13 @@ class PipelineStepABC(ABC):
         self.survey_id = survey_id
         self.query = f"select * from scraped_offers where survey_id='{self.survey_id}'"
 
-    @abstractmethod
     def execute_step(self):
+        self.load_previous_step_data()
+        self.process()
+        self.upload_results_to_db()
+
+    @abstractmethod
+    def process(self):
         """Perform main action of the transformation step"""
         pass
 
