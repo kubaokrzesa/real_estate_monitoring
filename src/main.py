@@ -6,6 +6,7 @@ from src.pipeline.scraping import Scraper
 from src.pipeline.data_cleaning import NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner
 from src.pipeline.lat_lon_coding import LatLonCoder
 from src.pipeline.geo_feature_extraction import GeoFeatureExtractor
+from src.pipeline.geo_dummy_coding import GeoDummyCoder
 from src.utils.get_config import config
 from src.special_steps.shp_file_downloader import get_shp_files
 from src.db.sqlite_creation import create_sqlite_db
@@ -53,3 +54,7 @@ if config.module_get_shp_files:
 if config.module_extract_geo_features:
     geo_feature_extractor = GeoFeatureExtractor(db=db, survey_id=survey_id)
     geo_feature_extractor.execute_step()
+
+if config.module_make_dummy_geo_features:
+    geo_dummy_coder = GeoDummyCoder(db=db, survey_id=survey_id)
+    geo_dummy_coder.execute_step()
