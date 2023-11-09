@@ -94,6 +94,7 @@ def _extract_info_from_link(link):
 
     response = requests.get(link_full, headers=config.headers)
     selector = Selector(response)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
     result = {}
 
@@ -105,7 +106,8 @@ def _extract_info_from_link(link):
 
     result['area'] = selector.xpath('//div[@aria-label="Powierzchnia"]/div[2]/div[1]/text()').get()
     result['ownership_type'] = selector.xpath('//div[@aria-label="Forma własności"]/div[2]/div[1]/text()').get()
-    result['n_rooms'] = selector.xpath('//div[@aria-label="Liczba pokoi"]/div[2]/div[1]/text()').get()
+    #result['n_rooms'] = selector.xpath('//div[@aria-label="Liczba pokoi"]/div[2]/div[1]/text()').get()
+    result['n_rooms'] = soup.find('div', attrs={"aria-label": "Liczba pokoi"}).find('div',attrs={"class": 'css-1wi2w6s enb64yk5'}).get_text(strip=True)
     result['state'] = selector.xpath('//div[@aria-label="Stan wykończenia"]/div[2]/div[1]/text()').get()
     result['floor'] = selector.xpath('//div[@aria-label="Piętro"]/div[2]/div[1]/text()').get()
     result['rent'] = selector.xpath('//div[@aria-label="Czynsz"]/div[2]/div[1]/text()').get()
@@ -129,7 +131,6 @@ def _extract_info_from_link(link):
     result['building_material'] = selector.xpath('//div[@aria-label="Materiał budynku"]/div[2]/div[1]/text()').get()
 
     # extracting description
-    soup = BeautifulSoup(response.content, 'html.parser')
     description_div = soup.find('div', class_='css-1wekrze e1lbnp621')
     if description_div:
         result['description'] = description_div.get_text(strip=False)
