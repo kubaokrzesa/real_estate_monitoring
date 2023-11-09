@@ -8,6 +8,7 @@ logger = Logger(__name__).get_logger()
 
 class PipelineStepABC(ABC):
     def __init__(self, db, survey_id):
+        self.output_table = None
         self.df = None
         self.df_out = None
         self.db = db
