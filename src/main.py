@@ -39,15 +39,10 @@ if config.module_scraping:
 
 if config.module_data_cleaning:
     cleaners = [NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner]
-    otp_paths = [paths.numeric_features_output_path, paths.categorical_features_output_path,
-                 paths.label_features_output_path]
-    df = pd.read_csv(paths.data_cleaning_input_path)
 
-    for Cleaner, otp_path in zip(cleaners, otp_paths):
-        cleaner = Cleaner()
-        cleaner.load_previous_step_data(df)
+    for Cleaner in cleaners:
+        cleaner = Cleaner(db=db, survey_id=survey_id)
         cleaner.execute_step()
-        cleaner.save_results(otp_path)
 
 if config.module_lat_lon_coding:
     df_adr = pd.read_csv(paths.address_matching_input_path, usecols=['link', 'adress'])

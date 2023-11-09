@@ -4,6 +4,7 @@ from datetime import datetime
 from unidecode import unidecode
 from typing import Optional
 import re
+import sqlite3
 
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
@@ -16,7 +17,7 @@ logger = Logger(__name__).get_logger()
 
 class DataCleaner(PipelineStepABC):
 
-    def __init__(self):
+    def __init__(self, db, survey_id):
         super().__init__()
         self.cat_vars = ['ownership_type', 'state', 'remote',
                          'heating', 'parking', 'market', 'offerent_type', 'building_type', 'windows',
@@ -28,14 +29,25 @@ class DataCleaner(PipelineStepABC):
                            'additional_info']
         self.num_cols = ['price', 'sq_m_price', 'area', 'n_rooms', 'rent']
         self.current_year = datetime.now().year
+        self.db = db
+        self.survey_id = survey_id
+        self.query = f"select * from scraped_offers where survey_id='{self.survey_id}'"
 
-    def load_previous_step_data(self, df):
-        self.df = df
-        self.df = self.df.drop_duplicates(subset=['link'])
+    def process(self):
+        pass
+
+    def execute_step(self):
+        self.load_previous_step_data()
+        self.process()
+        self.upload_results_to_db()
 
 
 class NumericDataCleaner(DataCleaner):
-    def execute_step(self):
+    def __init__(self, db, survey_id):
+        super().__init__(db, survey_id)
+        self.output_table = 'numeric_features'
+
+    def process(self):
         logger.info("Processing numerical columns")
         self.df_out = pd.DataFrame(index=self.df.index)
         self.df_out['link'] = self.df['link']
@@ -51,7 +63,11 @@ class NumericDataCleaner(DataCleaner):
 
 
 class CategoricalDataCleaner(DataCleaner):
-    def execute_step(self):
+    def __init__(self, db, survey_id):
+        super().__init__(db, survey_id)
+        self.output_table = 'categorical_features'
+
+    def process(self):
         logger.info("Processing categorical columns")
         self.df_out = pd.DataFrame(index=self.df.index)
         self.df_out['link'] = self.df['link']
@@ -63,7 +79,11 @@ class CategoricalDataCleaner(DataCleaner):
 
 
 class LabelDataCleaner(DataCleaner):
-    def execute_step(self):
+    def __init__(self, db, survey_id):
+        super().__init__(db, survey_id)
+        self.output_table = 'label_features'
+
+    def process(self):
         logger.info("Processing label columns")
         res_ls = []
         for var in self.label_vars:
