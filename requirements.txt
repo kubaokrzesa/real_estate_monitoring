@@ -20,3 +20,6 @@ xgboost
 shap
 bayesian-optimization
 optuna
+httpx
+aiohttp
+nest-asyncio

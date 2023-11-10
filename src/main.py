@@ -13,6 +13,9 @@ from src.db.sqlite_creation import create_sqlite_db
 from src.utils.db_utils import check_if_survey_exists
 import src.paths as paths
 
+from src.pipeline.experimental.async_scraping import AsyncScraper
+import time
+
 logger = Logger(__name__).get_logger()
 
 db = config.sqlite_db
@@ -38,8 +41,17 @@ else:
     logger.info(f"Resuming survey: {survey_id}")
 
 if config.module_scraping:
-    scraper = Scraper(db=db, survey_id=survey_id)
+    if config.use_async_scraping:
+        logger.info(f"Using async scraper")
+        scraper = AsyncScraper(db=db, survey_id=survey_id)
+    else:
+        logger.info(f"Using regular scraper")
+        scraper = Scraper(db=db, survey_id=survey_id)
+    t1 = time.time()
     scraper.execute_step()
+    t2 = time.time()
+    scraping_time = t2-t1
+    logger.info(f"Scraping executed in {scraping_time}")
 
 if config.module_data_cleaning:
     cleaners = [NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner]
