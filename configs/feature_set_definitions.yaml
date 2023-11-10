@@ -1,0 +1,12 @@
+# fe1
+fe1:
+  num_cols_to_use: ['area', 'n_rooms', 'rent', 'floor', 'max_floor', 'age_num']
+  geo_cols_to_use: ['center_dist', 'metro_dist']
+  cat_cols_to_use: ['parking_garazmiejsce_parkingowe', 'state_do_wykonczenia', 'market_wtorny', 'elevator_tak',
+                     'building_type_blok', 'building_type_kamienica']
+  lab_cols_to_use: ['balcony_balkon', 'media_internet', 'safety_monitoring_ochrona', 'additional_info_piwnica',
+                     'safety_teren_zamkniety', 'equipment_meble', 'balcony_taras', 'balcony_ogrodek']
+  geo_dum_cols_to_use: ['di_bemowo', 'di_bialoleka', 'di_bielany', 'di_ochota',
+         'di_praga_poludnie', 'di_pragapolnoc', 'di_rembertow', 'di_srodmiescie',
+         'di_targowek', 'di_ursus', 'di_ursynow', 'di_wawer', 'di_wesola',
+         'di_wilanow', 'di_wlochy', 'di_wola', 'di_zoliborz']

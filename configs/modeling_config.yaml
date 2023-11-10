@@ -1,0 +1,2 @@
+feature_set: 'fe1'
+surveys_to_use: !!python/tuple ['base_full_survey', 'incremental_2023-11-08_warsaw_1', 'incremental_2023-11-09_warsaw_1']

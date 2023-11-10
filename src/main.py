@@ -21,6 +21,7 @@ logger = Logger(__name__).get_logger()
 db = config.sqlite_db
 
 os.makedirs(paths.data_directory, exist_ok=True)
+os.makedirs(paths.models_directory, exist_ok=True)
 create_sqlite_db(db)
 
 # TODO write automatic checker

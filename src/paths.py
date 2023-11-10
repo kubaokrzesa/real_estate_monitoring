@@ -1,6 +1,7 @@
 from pathlib import Path
 
 data_directory = Path('data')
+models_directory = Path('models')
 
 initial_links_path = data_directory / "initial_links.json"
 scraping_output_path = data_directory / "offers.csv"
