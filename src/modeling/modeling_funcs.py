@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.impute import SimpleImputer
 
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_absolute_percentage_error
@@ -59,4 +60,40 @@ class CapTransformer(BaseEstimator, TransformerMixin):
             X[self.column] = np.where(X[self.column] > self.min_value, X[self.column], self.median_)
         if self.max_value is not None:
             X[self.column] = np.where(X[self.column] < self.max_value, X[self.column], self.median_)
+        return X
+
+
+class DataPreprocessor(BaseEstimator, TransformerMixin):
+    def __init__(self, columns_to_impute_median=['floor', 'max_floor', 'age_num', 'n_rooms'],
+                 zero_impute_columns=['rent', 'di_rembertow'],
+                 age_num_bounds=(-5, 300)):
+        self.columns_to_impute_median = columns_to_impute_median
+        self.zero_impute_columns = zero_impute_columns
+        self.age_num_bounds = age_num_bounds
+        self.imputers_ = {}
+
+    def fit(self, X, y=None):
+        # Initialize the imputers
+        for column in self.zero_impute_columns:
+            self.imputers_[column] = SimpleImputer(strategy='constant', fill_value=0)
+            self.imputers_[column].fit(X[[column]])
+
+        for column in self.columns_to_impute_median:
+            self.imputers_[column] = SimpleImputer(strategy='median')
+            self.imputers_[column].fit(X[[column]])
+
+        # Initialize and fit the cap transformer for 'age_num'
+        self.age_cap_transformer_ = CapTransformer(column='age_num', min_value=self.age_num_bounds[0], max_value=self.age_num_bounds[1])
+        self.age_cap_transformer_.fit(X)
+
+        return self
+
+    def transform(self, X):
+        # Apply the imputers to transform the data
+        for column, imputer in self.imputers_.items():
+            X[column] = imputer.transform(X[[column]])
+
+        # Apply the cap transformer
+        X = self.age_cap_transformer_.transform(X)
+
         return X

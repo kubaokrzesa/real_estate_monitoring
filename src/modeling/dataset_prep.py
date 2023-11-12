@@ -3,6 +3,7 @@ import pandas as pd
 from src.utils.get_config import config
 from src.utils.get_config import feature_set_definitions
 from src.utils.get_config import modeling_config
+from sklearn.model_selection import train_test_split
 
 
 def prepare_dataset(feature_set, surveys_to_use):
@@ -15,7 +16,7 @@ def prepare_dataset(feature_set, surveys_to_use):
     base_cols = ['s.survey_id', 'n.link', 'n.sq_m_price']
 
     all_cols = base_cols + num_cols_to_use + geo_cols_to_use + cat_cols_to_use + lab_cols_to_use + geo_dum_cols_to_use
-    all_cols_formatted = str(all_cols).replace('[','').replace(']','').replace("'",'')
+    all_cols_formatted = str(all_cols).replace('[', '').replace(']', '').replace("'", '')
     #
     query = f"""
     select {all_cols_formatted}
@@ -36,7 +37,17 @@ def prepare_dataset(feature_set, surveys_to_use):
 
     with sqlite3.connect(config.sqlite_db) as conn:
         df = pd.read_sql_query(query, conn)
+    df = df.set_index(['survey_id', 'link'])
     return df
+
+
+def prepare_x_y(df):
+    ## X y
+    y = df['sq_m_price']
+    X = df.drop(columns=['sq_m_price'])
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+    return X_train, X_test, y_train, y_test
 
 
 if __name__ == '__main__':

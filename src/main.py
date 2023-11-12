@@ -24,6 +24,9 @@ os.makedirs(paths.data_directory, exist_ok=True)
 os.makedirs(paths.models_directory, exist_ok=True)
 create_sqlite_db(db)
 
+# automate creation
+#mlflow ui --backend-store-uri sqlite:///mlflow.db
+
 # TODO write automatic checker
 if config.module_get_shp_files:
     get_shp_files(config.shp_urls, config.shp_files_directory_name)

@@ -1,2 +1,12 @@
 feature_set: 'fe1'
 surveys_to_use: !!python/tuple ['base_full_survey', 'incremental_2023-11-08_warsaw_1', 'incremental_2023-11-09_warsaw_1']
+
+params: {'fit_intercept': True}
+description: "Test runs for linear regression"
+output_model_name: 'linear_regression'
+log_code_artifact: True
+
+# mlflow
+mlflow_tracking_uri: "sqlite:///mlflow.db"
+mlflow_run_name: 'test_run'
+mlflow_experiment_name: "Second experiment"
