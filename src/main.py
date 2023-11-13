@@ -2,7 +2,7 @@ import os
 
 from src.utils.setting_logger import Logger
 from src.special_steps.survey_creation import SurveyCreator
-from src.pipeline.scraping import Scraper
+from src.pipeline.scraping.scraping import Scraper
 from src.pipeline.data_cleaning import NumericDataCleaner, CategoricalDataCleaner, LabelDataCleaner
 from src.pipeline.lat_lon_coding import LatLonCoder
 from src.pipeline.geo_feature_extraction import GeoFeatureExtractor
@@ -13,7 +13,7 @@ from src.db.sqlite_creation import create_sqlite_db
 from src.utils.db_utils import check_if_survey_exists
 import src.paths as paths
 
-from src.pipeline.experimental.async_scraping import AsyncScraper
+from src.pipeline.scraping.async_scraping import AsyncScraper
 import time
 
 logger = Logger(__name__).get_logger()
