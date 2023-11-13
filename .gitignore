@@ -166,3 +166,4 @@ cython_debug/
 /tests/data_test/
 /models/
 /mlruns/
+/mlflow.db
