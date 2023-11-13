@@ -1,5 +1,7 @@
+"""
+Main entry point to scraping and data processing pipeline
+"""
 import os
-
 from src.utils.setting_logger import Logger
 from src.special_steps.survey_creation import SurveyCreator
 from src.pipeline.scraping.scraping import Scraper

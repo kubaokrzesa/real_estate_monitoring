@@ -1,8 +1,25 @@
 from scrapy import Selector
 from bs4 import BeautifulSoup
+from typing import Dict, Any
 
 
-def extract_info_from_response(html, url):
+def extract_info_from_response(html: str, url: str) -> Dict[str, Any]:
+    """
+    Extracts information from the HTML response of a real estate listing.
+
+    Parses the HTML content using both XPath and BeautifulSoup to extract various details
+    of a real estate listing such as title, price, address, area, and other attributes.
+
+    Args:
+        html (str): The HTML content of the webpage.
+        url (str): The URL of the webpage.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing extracted information.
+
+    Raises:
+        ValueError: If the HTML content is not provided or is not a string.
+    """
     if not html or not isinstance(html, str):
         raise ValueError(f"No HTML content to parse for link: {url}")
     selector = Selector(text=html)
@@ -17,7 +34,7 @@ def extract_info_from_response(html, url):
 
         result['area'] = selector.xpath('//div[@aria-label="Powierzchnia"]/div[2]/div[1]/text()').get()
         result['ownership_type'] = selector.xpath('//div[@aria-label="Forma własności"]/div[2]/div[1]/text()').get()
-        result['n_rooms'] = soup.find('div', attrs={"aria-label": "Liczba pokoi"}).find('div',attrs={"class": 'css-1wi2w6s enb64yk5'}).get_text(strip=True)
+        result['n_rooms'] = soup.find('div', attrs={"aria-label": "Liczba pokoi"}).find('div', attrs={"class": 'css-1wi2w6s enb64yk5'}).get_text(strip=True)
         result['state'] = selector.xpath('//div[@aria-label="Stan wykończenia"]/div[2]/div[1]/text()').get()
         result['floor'] = selector.xpath('//div[@aria-label="Piętro"]/div[2]/div[1]/text()').get()
         result['rent'] = selector.xpath('//div[@aria-label="Czynsz"]/div[2]/div[1]/text()').get()

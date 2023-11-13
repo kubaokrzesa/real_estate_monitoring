@@ -2,11 +2,21 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from unidecode import unidecode
-from typing import Optional
+from typing import Optional, Union, List
 import re
 
 
 def normalize_categoricals(text: Optional[str]) -> str:
+    """
+    Normalizes categorical text data by removing Polish characters, non-alphanumeric characters,
+    and spaces, then replacing spaces with underscores.
+
+    Args:
+        text (Optional[str]): The text to normalize.
+
+    Returns:
+        str: The normalized text.
+    """
     if text is None or pd.isna(text):
         clean_text = 'MISSING'
     else:
@@ -21,7 +31,17 @@ def normalize_categoricals(text: Optional[str]) -> str:
     return clean_text
 
 
-def extract_floor(val_str, max_floor=False):
+def extract_floor(val_str: Optional[str], max_floor: bool = False) -> Union[int, float]:
+    """
+    Extracts the floor number from a string, optionally extracting the maximum floor.
+
+    Args:
+        val_str (Optional[str]): The string containing the floor information.
+        max_floor (bool): A flag indicating whether to extract the maximum floor.
+
+    Returns:
+        Union[int, float]: The extracted floor number, or NaN if not extractable.
+    """
     if max_floor:
         idx = 1
     else:
@@ -47,7 +67,16 @@ def extract_floor(val_str, max_floor=False):
     return floor
 
 
-def convert_col_to_num(val_str):
+def convert_col_to_num(val_str: Union[str, int, float]) -> Union[int, float]:
+    """
+    Converts a string containing a numerical value to a numerical data type.
+
+    Args:
+        val_str (Union[str, int, float]): The string to convert.
+
+    Returns:
+        Union[int, float]: The numerical value, or NaN if not convertible.
+    """
     if val_str is None or pd.isna(val_str):
         return np.nan
     elif type(val_str) in (int, float):
@@ -60,7 +89,16 @@ def convert_col_to_num(val_str):
         return int_val
 
 
-def separate_lables(x):
+def separate_lables(x: Optional[str]) -> List[str]:
+    """
+    Separates and normalizes labels from a string.
+
+    Args:
+        x (Optional[str]): The string containing the labels.
+
+    Returns:
+        List[str]: A list of separated and normalized labels.
+    """
     if x is None or pd.isna(x):
         otp = ['NO']
     else:
@@ -69,7 +107,18 @@ def separate_lables(x):
     return otp
 
 
-def extract_labels(df, var):
+def extract_labels(df: pd.DataFrame, var: str) -> pd.DataFrame:
+    """
+    Extracts and transforms label data from a DataFrame into a format suitable for analysis.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the data.
+        var (str): The name of the column containing label data.
+
+    Returns:
+        pd.DataFrame: A DataFrame with the transformed label data.
+    """
+
     df_lab = df[['link', var]].set_index('link')
 
     df_lab[f"{var}_ls"] = df_lab[var].apply(separate_lables)

@@ -1,5 +1,5 @@
 import pandas as pd
-
+from typing import List
 import sqlite3
 from src.utils.exceptions import AllLinksProcessedException, EmptySurveyException
 from src.utils.setting_logger import Logger
@@ -10,8 +10,24 @@ logger = Logger(__name__).get_logger()
 
 
 class BaseScraper(PipelineStepABC):
+    """
+    Base class for scraping tasks in a data pipeline, extending PipelineStepABC.
 
-    def __init__(self, db, survey_id):
+    This class is specifically designed for the initial scraping stage, handling the loading of
+    links from a database and preparing them for subsequent scraping.
+
+    Attributes:
+        links (List[str]): List of links to be processed.
+        output_table (str): Name of the output table in the database.
+        query (str): SQL query to retrieve relevant links for scraping.
+
+    Methods:
+        load_previous_step_data(): Loads data from the previous step, checks for validity, and prepares links.
+        execute_step(): Placeholder for executing the scraping step.
+        process(): Placeholder for the process implementation.
+    """
+
+    def __init__(self, db: str, survey_id: str):
         super().__init__(db, survey_id)
         self.links = []
         self.output_table = "scraped_offers"
@@ -23,6 +39,9 @@ class BaseScraper(PipelineStepABC):
         """
 
     def load_previous_step_data(self):
+        """
+        Loads links from the database, performs validity checks, and prepares the list of links for processing.
+        """
         super().load_previous_step_data()
 
         # Validity checks

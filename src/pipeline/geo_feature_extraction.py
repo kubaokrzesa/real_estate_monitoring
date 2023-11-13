@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
-
+from typing import Any
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 from src.pipeline.pipeline_step_abc import PipelineStepABC
@@ -11,8 +11,26 @@ logger = Logger(__name__).get_logger()
 
 
 class GeoFeatureExtractor(PipelineStepABC):
+    """
+    Class for extracting geographic features from real estate data.
 
-    def __init__(self, db, survey_id):
+    This class extends PipelineStepABC to process geographic data such as district names,
+    metro station proximity, and distance from the city center.
+
+    Attributes:
+        powiaty (gpd.GeoDataFrame): GeoDataFrame containing powiaty (counties) data.
+        gminy (gpd.GeoDataFrame): GeoDataFrame containing gminy (communes) data.
+        jednostki_ewidencyjne (gpd.GeoDataFrame): GeoDataFrame containing jednostki ewidencyjne (administrative units) data.
+        warszawa_dzielnice (gpd.GeoDataFrame): GeoDataFrame containing district data for Warsaw.
+        metro_stations (pd.DataFrame): DataFrame containing metro station locations.
+        warsaw_center (shapely.geometry.Point): Geographical point representing the center of Warsaw.
+        output_table (str): Name of the output table for storing processed data.
+
+    Methods:
+        load_previous_step_data(): Loads and converts the data to a GeoDataFrame.
+        process(): Processes the geographical data and extracts relevant features.
+    """
+    def __init__(self, db: str, survey_id: str):
         super().__init__(db=db, survey_id=survey_id)
         # TODO move to paths
         self.powiaty = gpd.read_file("shp_files/powiaty")[["JPT_NAZWA_", "geometry"]]
@@ -33,10 +51,17 @@ class GeoFeatureExtractor(PipelineStepABC):
         self.output_table = 'geo_features'
 
     def load_previous_step_data(self):
+        """
+        Loads data from the previous step and converts it into a GeoDataFrame.
+        """
         super().load_previous_step_data()
         self.df = convert_df_to_geo(self.df, self.warszawa_dzielnice.crs, base_crs='EPSG:4326')
 
     def process(self):
+        """
+        Processes the geographical data to extract features such as district names, metro station proximity,
+        and distance from the city center.
+        """
         gdf_augmented = self.df.sjoin(self.warszawa_dzielnice, how='left', predicate='within').drop(columns=['index_right'])
         gdf_augmented = gdf_augmented.sjoin(self.powiaty, how='left', predicate='within').drop(
             columns=['index_right']).rename(
@@ -51,19 +76,51 @@ class GeoFeatureExtractor(PipelineStepABC):
         self.df_out = gdf_augmented.drop('geometry', axis=1)
 
 
-def convert_df_to_geo(df, new_crs, base_crs='EPSG:4326'):
+def convert_df_to_geo(df: pd.DataFrame, new_crs: str, base_crs: str = 'EPSG:4326') -> gpd.GeoDataFrame:
+    """
+    Converts a DataFrame to a GeoDataFrame by setting the CRS and converting the coordinates.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to be converted.
+        new_crs (str): The new coordinate reference system.
+        base_crs (str): The base coordinate reference system.
+
+    Returns:
+        gpd.GeoDataFrame: The converted GeoDataFrame.
+    """
     df = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
     df = df.set_crs(base_crs, allow_override=True)
     df = df.to_crs(new_crs)
     return df
 
 
-def convert_point_to_crs(point, new_crs, base_crs='EPSG:4326'):
+def convert_point_to_crs(point: Point, new_crs: str, base_crs: str = 'EPSG:4326') -> Point:
+    """
+    Converts a geographical point to a new coordinate reference system.
+
+    Args:
+        point (Point): The geographical point to be converted.
+        new_crs (str): The new coordinate reference system.
+        base_crs (str): The base coordinate reference system.
+
+    Returns:
+        Point: The converted geographical point.
+    """
     point_new_crs = gpd.GeoSeries([point], crs=base_crs).to_crs(new_crs).iloc[0]
     return point_new_crs
 
 
-def find_closest_metro(gdf, metro_stations):
+def find_closest_metro(gdf: gpd.GeoDataFrame, metro_stations: pd.DataFrame) -> pd.DataFrame:
+    """
+    Finds the closest metro station for each entry in the GeoDataFrame.
+
+    Args:
+        gdf (gpd.GeoDataFrame): The GeoDataFrame containing real estate offers.
+        metro_stations (pd.DataFrame): The DataFrame containing metro station locations.
+
+    Returns:
+        pd.DataFrame: A DataFrame with the closest metro station and distance for each offer.
+    """
     offers = gdf[['link', 'geometry']]
     offers['key'] = 1
 
@@ -81,6 +138,6 @@ def find_closest_metro(gdf, metro_stations):
     dist_tab['closest_metro'] = closest_metro
     dist_tab['metro_dist'] = metro_dist
 
-    metro_tab = dist_tab.reset_index()[['link','closest_metro', 'metro_dist']]
+    metro_tab = dist_tab.reset_index()[['link', 'closest_metro', 'metro_dist']]
     metro_tab.columns.name = ''
     return metro_tab
