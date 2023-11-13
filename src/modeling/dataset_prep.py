@@ -2,7 +2,6 @@ import sqlite3
 import pandas as pd
 from src.utils.get_config import config
 from src.utils.get_config import feature_set_definitions
-from src.utils.get_config import modeling_config
 from sklearn.model_selection import train_test_split
 
 
@@ -48,10 +47,3 @@ def prepare_x_y(df):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
     return X_train, X_test, y_train, y_test
-
-
-if __name__ == '__main__':
-    # for testing purposes
-    df = prepare_dataset(modeling_config.feature_set, modeling_config.surveys_to_use)
-    print(df)
-    print(df.shape)

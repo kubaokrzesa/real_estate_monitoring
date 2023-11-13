@@ -19,9 +19,8 @@ def get_feature_definitions() -> Box:
     return config
 
 
-def get_modeling_config() -> Box:
-    print(os.getcwd())
-    with open(r"configs/modeling_config.yaml") as file:
+def get_config_from_path(path: str) -> Box:
+    with open(path) as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
         config = Box(config)
     return config
@@ -29,4 +28,3 @@ def get_modeling_config() -> Box:
 
 config = get_config()
 feature_set_definitions = get_feature_definitions()
-modeling_config = get_modeling_config()
