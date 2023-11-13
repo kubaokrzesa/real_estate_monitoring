@@ -1,14 +1,16 @@
 # if new survey, provide survey params
-new_survey: False
+new_survey: True
 survey_type: 'test' # 'incremental' #  # 'test' # 'full', 'incremental', 'test_max_page'
 location: 'warsaw'
-max_page_num: 1 #243 # limit page num for testing purposes
+max_page_num: 5 #243 # limit page num for testing purposes
+config:
+use_async_links_scraping: False
 
 # if you want to continue survey, choose which one
 survey_to_continue: test_2023-11-13_warsaw_5 # incremental_2023-11-09_warsaw_1 # incremental_2023-11-08_warsaw_1 #base_full_survey # incremental_2023-11-08_warsaw_1
 
 # modules to run
-module_scraping: True
+module_scraping: False
 module_data_cleaning: False
 excluded_cleaners: [] # [] ['NumericDataCleaner', 'CategoricalDataCleaner', 'LabelDataCleaner']
 module_lat_lon_coding: False

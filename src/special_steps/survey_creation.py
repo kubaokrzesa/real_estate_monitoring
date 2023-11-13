@@ -6,7 +6,7 @@ from scrapy import Selector
 import pandas as pd
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
-
+from src.special_steps.async_links_collection import async_collect_links
 from src.db.sql_code import survey_table_insert
 
 logger = Logger(__name__).get_logger()
@@ -39,6 +39,7 @@ class SurveyCreator:
         self.survey_id = f"{self.survey_type}_{self.survey_date}_{self.location}_{str(self.survey_number)}"
         self.links = []
         self.df_out = None
+        self.use_async_links_scraping = config.use_async_links_scraping
         logger.info(f"Survey id generated: {self.survey_id}")
 
     def get_survey_number(self, survey_date, survey_type, location):
@@ -66,17 +67,21 @@ class SurveyCreator:
 
     def collect_links_list(self):
         logger.info(f"Collecting links to real estate offers")
-        for page_num in range(self.n_pages):
-            url = self.base_link.format(str(page_num))
-            logger.info(f"Visiting page with offers number {str(page_num)}, url: {url}")
+        if self.use_async_links_scraping:
+            logger.info(f"Using async to collect links from pages")
+            self.links = async_collect_links(self.n_pages)
+        else:
+            for page_num in range(self.n_pages):
+                url = self.base_link.format(str(page_num))
+                logger.info(f"Visiting page with offers number {str(page_num)}, url: {url}")
 
-            response = requests.get(url, headers=config.headers)
-            selector = Selector(response)
+                response = requests.get(url, headers=config.headers)
+                selector = Selector(response)
 
-            listings = selector.xpath("//a[@data-cy='listing-item-link']/@href")
+                listings = selector.xpath("//a[@data-cy='listing-item-link']/@href")
 
-            links_list = [listing.get() for listing in listings]
-            self.links.extend(links_list)
+                links_list = [listing.get() for listing in listings]
+                self.links.extend(links_list)
         logger.info(f"Total number of links collected: {str(len(self.links))}")
 
     def clean_and_save_links_to_db(self):
