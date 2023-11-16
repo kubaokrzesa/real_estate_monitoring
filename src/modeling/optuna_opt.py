@@ -1,71 +1,83 @@
-from sklearn.model_selection import cross_val_score, KFold
-import optuna
+"""
+Funcion to optimize hyperparameters using Optuna
+"""
 from optuna.visualization import plot_optimization_history
 from optuna.visualization import plot_contour
 from optuna.visualization import plot_param_importances
 from optuna.visualization import plot_slice
-
-from src.utils.setting_logger import Logger
-
-from src.modeling.x_y_prep import X_train, X_test, y_train, y_test
-from src.modeling.constants import (fe1, my_flat_fe1, suggested_base, base_cat_cols, fe1_xgb_best,
-    object_cols, lat_lon_cols)
-
-from src.modeling.modeling_funcs import scoring_printout_mod
-import xgboost as xgb
 import plotly.io as pio
 
-
-logger = Logger(__name__).get_logger()
-
-n_trials=250
-
-fe_all = [col for col in list(X_train.columns) if col not in base_cat_cols + object_cols + lat_lon_cols]
-
-feature_set = fe1
+import optuna
+from sklearn.model_selection import cross_val_score, KFold
+from typing import Dict, Any, List, Tuple, Type
+from sklearn.base import BaseEstimator
+import pandas as pd
+import numpy as np
 
 
-def objective(trial):
-    params = {
-        'n_estimators': trial.suggest_int('n_estimators', 400, 1200),
-        'max_depth': trial.suggest_int('max_depth', 4, 18),
-        'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3),
-        'subsample': trial.suggest_float('subsample', 0.6, 0.85),
-        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.6, 0.9),
-        'min_child_weight': trial.suggest_int('min_child_weight', 1, 6),
-        'reg_alpha': trial.suggest_float('reg_alpha', 0, 1),
-        'reg_lambda': trial.suggest_float('reg_lambda', 1, 100)
-    }
+def optimize_hyperparams_optuna(
+    params_config: Dict[str, Dict[str, Any]],
+    fixed_params: Dict[str, Any],
+    categorical_params: List[Tuple[str, List[Any]]],
+    model_class: Type[BaseEstimator],
+    X: pd.DataFrame,
+    y: np.ndarray,
+    n_trials: int = 100,
+    n_splits: int = 3,
+    scoring: str = 'neg_mean_squared_error',
+    direction: str = 'maximize'
+) -> optuna.study.Study:
+    """
+    Optimize hyperparameters for a given machine learning model using Optuna.
 
-    model = xgb.XGBRegressor(**params)
-    kf = KFold(n_splits=3)
-    scores = cross_val_score(model, X_train[feature_set], y_train, cv=kf, scoring='neg_mean_squared_error', n_jobs=-1)
-    rmse = (-scores.mean()) ** 0.5  # Negative MSE to positive RMSE
-    return rmse
+    This function creates an Optuna study to find the best hyperparameters for a model.
+    It supports optimizing continuous (float, int) and categorical parameters.
+    The optimization process uses K-Fold cross-validation to evaluate the performance of the model.
 
-logger.info("launching optimisation")
-study = optuna.create_study(direction='minimize')
-study.optimize(objective, n_trials=n_trials)
+    Parameters:
+    - params_config (Dict[str, Dict[str, Any]]): Configuration for hyperparameters to optimize.
+      Each key is a parameter name, and the value is a dictionary with keys 'type' and 'range'.
+    - fixed_params (Dict[str, Any]): Fixed parameters that are not optimized.
+    - categorical_params (List[Tuple[str, List[Any]]]): List of categorical parameters and their possible values.
+    - model_class (Type[BaseEstimator]): The class of the model to be optimized.
+    - X (pd.DataFrame): Feature dataset.
+    - y (np.ndarray): Target variable.
+    - n_trials (int, optional): The number of trials for optimization. Default is 100.
+    - n_splits (int, optional): The number of splits for K-Fold cross-validation. Default is 3.
+    - scoring (str, optional): Scoring metric for cross-validation. Default is 'neg_mean_squared_error'.
+    - direction (str, optional): The direction of optimization ('minimize' or 'maximize'). Default is 'maximize'.
 
-best_params = study.best_params
-best_score = study.best_value
+    Returns:
+    optuna.study.Study: The Optuna study object, which contains the results of the optimization.
 
-logger.info(f"Best params: {best_params}")
-logger.info(f"Best RMSE score: {best_score}")
+    Example Usage:
+    >>> study = optimize_hyperparams_optuna(params_config, fixed_params, categorical_params, model_class, X, y)
+    >>> best_params = study.best_params
+    >>> print(f"Best parameters: {best_params}")
+    """
+    def get_objective(params_config, fixed_params, categorical_params, model_class, X, y, n_splits, scoring):
+        def objective(trial):
+            params = {}
+            for param, config in params_config.items():
+                if config['type'] == 'float':
+                    params[param] = trial.suggest_float(param, *config['range'])
+                elif config['type'] == 'int':
+                    params[param] = trial.suggest_int(param, *config['range'])
+            params.update(fixed_params)
 
-best_model = xgb.XGBRegressor(**best_params)
-best_model.fit(X_train[feature_set], y_train)
+            if categorical_params:
+                for categorical_param in categorical_params:
+                    params[categorical_param[0]] = trial.suggest_categorical(categorical_param[0], categorical_param[1])
 
-scoring_printout_mod(best_model, y_train, y_test, X_train[feature_set], X_test[feature_set])
+            model = model_class(**params)
+            kf = KFold(n_splits=n_splits)
+            scores = cross_val_score(model, X, y, cv=kf, scoring=scoring, n_jobs=-1)
+            metric = scores.mean()
+            return metric
+        return objective
 
-hist = plot_optimization_history(study)
-cont1 = plot_contour(study, params=['n_estimators', 'max_depth'])
-cont2 = plot_contour(study, params=['reg_alpha', 'reg_lambda'])
-imp = plot_param_importances(study)
-sli = plot_slice(study)
+    study = optuna.create_study(direction=direction)
+    objective_ = get_objective(params_config, fixed_params, categorical_params, model_class, X, y, n_splits, scoring)
+    study.optimize(objective_, n_trials=n_trials)
 
-pio.show(hist)
-pio.show(cont1)
-pio.show(cont2)
-pio.show(imp)
-pio.show(sli)
+    return study
