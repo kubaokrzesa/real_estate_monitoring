@@ -66,10 +66,10 @@ class CapTransformer(BaseEstimator, TransformerMixin):
 class DataPreprocessor(BaseEstimator, TransformerMixin):
     def __init__(self, columns_to_impute_median=['floor', 'max_floor', 'age_num', 'n_rooms'],
                  zero_impute_columns=['rent', 'di_rembertow'],
-                 age_num_bounds=(-5, 300)):
+                 bounds={ 'age_num': (-5, 300), 'rent': (0, 20_000) }):
         self.columns_to_impute_median = columns_to_impute_median
         self.zero_impute_columns = zero_impute_columns
-        self.age_num_bounds = age_num_bounds
+        self.bounds = bounds
         self.imputers_ = {}
 
     def fit(self, X, y=None):
@@ -82,9 +82,13 @@ class DataPreprocessor(BaseEstimator, TransformerMixin):
             self.imputers_[column] = SimpleImputer(strategy='median')
             self.imputers_[column].fit(X[[column]])
 
-        # Initialize and fit the cap transformer for 'age_num'
-        self.age_cap_transformer_ = CapTransformer(column='age_num', min_value=self.age_num_bounds[0], max_value=self.age_num_bounds[1])
+        # Initialize and fit the cap transformer for 'age_num' and 'rent'
+        self.age_cap_transformer_ = CapTransformer(column='age_num', min_value=self.bounds['age_num'][0], max_value=self.bounds['age_num'][1])
         self.age_cap_transformer_.fit(X)
+
+        self.rent_cap_transformer_ = CapTransformer(column='rent', min_value=self.bounds['rent'][0],
+                                                   max_value=self.bounds['rent'][1])
+        self.rent_cap_transformer_.fit(X)
 
         return self
 
@@ -95,5 +99,6 @@ class DataPreprocessor(BaseEstimator, TransformerMixin):
 
         # Apply the cap transformer
         X = self.age_cap_transformer_.transform(X)
+        X = self.rent_cap_transformer_.transform(X)
 
         return X
