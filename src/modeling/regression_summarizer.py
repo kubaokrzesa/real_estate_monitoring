@@ -205,7 +205,7 @@ class RegressionSumarizer:
         return y, y_pred, dataset, space
 
 
-    def plot_residual(self, test: bool = True, inverse_y: bool = False):
+    def plot_residual(self, test: bool = True, inverse_y: bool = False, show=True):
         """
         Plot the residuals for the test dataset.
 
@@ -215,17 +215,20 @@ class RegressionSumarizer:
         Parameters:
         test (bool): if function should be executed for test data
         inverse_y (bool): use inverse target transform (only works if provided)
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         y, y_pred, dataset, space = self.get_correct_y(test, inverse_y)
-
+        plt.figure()
         sns.histplot(y - y_pred, kde=True)
         if inverse_y:
             plt.title(f"actual - predicted, {dataset}")
         else:
             plt.title(f"actual - predicted, {dataset}, {space}")
+        if show:
+            plt.show()
 
         # true vs predicted
-    def plot_true_vs_pred(self, test: bool = True, inverse_y: bool = False, figsize=(8, 6)):
+    def plot_true_vs_pred(self, test: bool = True, inverse_y: bool = False, figsize=(8, 6), show=True):
         """
         Plot a scatter plot comparing actual and predicted values for the test set.
 
@@ -234,6 +237,7 @@ class RegressionSumarizer:
         Parameters:
         test (bool): if function should be executed for test data
         inverse_y (bool): use inverse target transform (only works if provided)
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         y, y_pred, dataset, space = self.get_correct_y(test, inverse_y)
 
@@ -252,57 +256,75 @@ class RegressionSumarizer:
         else:
             plot_title = f"true vs prdicted, {dataset}, {self.name}, {space}"
         plt.title(plot_title)
+        if show:
+            plt.show()
 
         # importances
-    def plot_fe_imp_or_coef(self, figsize=(6, 8)):
+    def plot_fe_imp_or_coef(self, figsize=(6, 8), show=True):
         """
         Plot feature importances (tree based models) or coefs (linear models)
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         if self.fe_imp_or_coef is None:
             raise Exception("Model does not have coef_ or feature_importance_")
         else:
+            plt.figure()
             self.fe_imp_or_coef.sort_values().plot.barh(figsize=figsize)
             plt.title(f"{self.name}, {self.fe_imp_or_coef.name}")
+        if show:
+            plt.show()
 
-    def plot_transformed_coef(self, figsize=(6, 8)):
+    def plot_transformed_coef(self, figsize=(6, 8), show=True):
         """
         Only meaningful for (regularized) linear regression with feature transformation
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         if self.fe_imp_or_coef is None:
             raise Exception("Model does not have coef_ or feature_importance_")
         else:
+            plt.figure()
             coefs = self.fe_imp_or_coef.to_frame().T
             coefs_tr = self.transform_X(coefs)
             coefs_tr.T['coef_'].sort_values().plot.barh(figsize=figsize)
             plt.title(f"{self.name}, {self.fe_imp_or_coef.name}, Transformed coefs_")
+        if show:
+            plt.show()
 
         # shap
-    def plot_shap_waterfall(self, case: pd.DataFrame, max_display: int = 14):
+    def plot_shap_waterfall(self, case: pd.DataFrame, max_display: int = 14, show=True):
         """
         Plot a SHAP waterfall plot for a SINGLE observation.
 
         Parameters:
         case (pd.DataFrame): The input data with ONE observation for which SHAP values are to be calculated.
         max_display (int): The maximum number of features to display in the plot.
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         case = self.transform_X(case)
         explanation = self.shap_explainer(case)
-        shap.waterfall_plot(explanation[0], max_display=max_display)
+        plt.figure()
+        shap.waterfall_plot(explanation[0], max_display=max_display, show=False)
+        if show:
+            plt.show()
 
-    def plot_shap_bee(self, X: pd.DataFrame, max_display: int = 14):
+    def plot_shap_bee(self, X: pd.DataFrame, max_display: int = 14, show=True):
         """
         Plot a SHAP beeswarm plot for the input data.
 
         Parameters:
         X (pd.DataFrame): The input data for which SHAP values are to be calculated.
         max_display (int): The maximum number of features to display in the plot.
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         X = self.transform_X(X)
         explanation = self.shap_explainer(X)
-        shap.plots.beeswarm(explanation, max_display=max_display)
+        plt.figure()
+        shap.plots.beeswarm(explanation, max_display=max_display, show=False)
+        if show:
+            plt.show()
 
         # works only with tree?
-    def plot_shap_cluster(self, X: pd.DataFrame, y: pd.Series, clustering_cutoff: float = 0.5, max_display: int = 14):
+    def plot_shap_cluster(self, X: pd.DataFrame, y: pd.Series, clustering_cutoff: float = 0.5, max_display: int = 14, show=True):
         """
         Plot a SHAP bar plot with FEATURE clustering for the input data.
 
@@ -311,14 +333,18 @@ class RegressionSumarizer:
         y (pd.Series): The target values.
         clustering_cutoff (float): The cutoff for clustering in the hierarchical clustering.
         max_display (int): The maximum number of features to display in the plot.
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         X = self.transform_X(X)
         y = self.transform_y(y)
         clustering = shap.utils.hclust(X, y)
         explanation = self.shap_explainer(X)
-        shap.plots.bar(explanation, clustering=clustering, clustering_cutoff=clustering_cutoff, max_display=max_display)
+        plt.figure()
+        shap.plots.bar(explanation, clustering=clustering, clustering_cutoff=clustering_cutoff, max_display=max_display, show=False)
+        if show:
+            plt.show()
 
-    def plot_shap_cohort_bar(self, X: pd.DataFrame, gr_col: str, cohort_bar_cats: dict, max_display: int = 14):
+    def plot_shap_cohort_bar(self, X: pd.DataFrame, gr_col: str, cohort_bar_cats: dict, max_display: int = 14, show=True):
         """
         Plot a SHAP bar plot for cohorts.
 
@@ -327,25 +353,33 @@ class RegressionSumarizer:
         gr_col (str): Name of the feature used to define cohorts.
         cohort_bar_cats (dict): dictionary mapping values to cohort names e.g. {1:'center', 0:'not center'}
         max_display (int): The maximum number of features to display in the plot.
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         X = self.transform_X(X)
         explanation = self.shap_explainer(X)
         group = [cohort_bar_cats[1] if explanation[i,gr_col].data == 1 else cohort_bar_cats[0] for i in range(explanation.shape[0])]
-        shap.plots.bar(explanation.cohorts(group).mean(0), max_display=max_display)
+        plt.figure()
+        shap.plots.bar(explanation.cohorts(group).mean(0), max_display=max_display, show=False)
+        if show:
+            plt.show()
 
-    def plot_shap_scatter(self, X: pd.DataFrame, col: Union[int, str]):
+    def plot_shap_scatter(self, X: pd.DataFrame, col: Union[int, str], show=True):
         """
         Plot a SHAP scatter plot for a specific feature.
 
         Parameters:
         X (pd.DataFrame): The input data for which SHAP values are to be calculated.
         col (Union[int, str]): The index or name of the feature for the scatter plot.
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         X = self.transform_X(X)
         explanation = self.shap_explainer(X)
-        shap.plots.scatter(explanation[:, col], color=explanation)
+        plt.figure()
+        shap.plots.scatter(explanation[:, col], color=explanation, show=False)
+        if show:
+            plt.show()
 
-    def plot_partial_dep(self, X: pd.DataFrame, var: Union[int, str], ice: bool = False, inverse_y: bool = False):
+    def plot_partial_dep(self, X: pd.DataFrame, var: Union[int, str], ice: bool = False, inverse_y: bool = False, show=True):
         """
         Plot a partial dependence plot for a specific feature.
 
@@ -354,6 +388,7 @@ class RegressionSumarizer:
         var (Union[int, str]): The index or name of the feature.
         ice (bool): Whether to use Individual Conditional Expectation (ICE) plots.
         inverse_y (bool): if y space should be transformed back to original (works for transformed target)
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         if inverse_y:
             if self.inv_target_transformer is None:
@@ -364,6 +399,7 @@ class RegressionSumarizer:
             prediction_func = self.model.predict
 
         X = self.transform_X(X)
+        plt.figure()
         shap.partial_dependence_plot(
         var,
         prediction_func,
@@ -371,9 +407,12 @@ class RegressionSumarizer:
         ice=ice,
         model_expected_value=True,
         feature_expected_value=True,
-    )
+        show=False
+        )
+        if show:
+            plt.show()
 
-    def plot_partial_dep2d(self, X: pd.DataFrame, var1: Union[int, str], var2: Union[int, str], width: int = 22, height: int = 6, inverse_y = False):
+    def plot_partial_dep2d(self, X: pd.DataFrame, var1: Union[int, str], var2: Union[int, str], width: int = 22, height: int = 6, inverse_y = False, show=True):
         """
         Plot a two-dimensional partial dependence plot for a pair of features.
 
@@ -383,10 +422,14 @@ class RegressionSumarizer:
         width (int): Width of the plot.
         height (int): Height of the plot.
         inverse_y (bool): NOT IMPLEMENTED YET
+        show (bool): should plot be displayed (disable if you want to save it)
         """
         if inverse_y:
             raise NotImplementedError
         X = self.transform_X(X)
+        plt.figure()
         pdd = PartialDependenceDisplay.from_estimator(self.model, X, [var1, var2, (var1, var2)])
         pdd.figure_.set_figwidth(width)
         pdd.figure_.set_figheight(height)
+        if show:
+            plt.show()
