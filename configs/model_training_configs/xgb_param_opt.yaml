@@ -1,0 +1,33 @@
+feature_set: 'fe1'
+surveys_to_use: !!python/tuple ['base_full_survey', 'incremental_2023-11-08_warsaw_1', 'incremental_2023-11-09_warsaw_1']
+
+params: {}
+description: "Runs for XGB Regressor"
+output_dir: 'models'
+transformer_model_name: 'data_preprocessor'
+output_model_name: 'xgb_regressor'
+best_params_out_file: 'best_params'
+log_artifacts: True
+
+# mlflow
+mlflow_tracking_uri: "sqlite:///mlflow.db"
+mlflow_run_name: 'test_run'
+mlflow_experiment_name: "Second experiment"
+
+# hyper parameter tuning
+
+n_trials: 10
+n_splits: 3
+scoring: 'r2'
+
+params_config: {
+        'n_estimators':{'type': 'int', 'range': !!python/tuple [10, 100] },
+        'max_depth': {'type': 'int', 'range': !!python/tuple [4, 18] },
+        'learning_rate': {'type': 'float', 'range': !!python/tuple [0.01, 0.3] },
+        'subsample':{'type': 'float', 'range': !!python/tuple [0.6, 0.85] }
+    }
+     #   'quantile_alpha':{'type': 'float', 'range':(0.01, 0.99)} 'reg:quantileerror',
+
+fixed_params: {'booster':'gbtree'}
+
+categorical_params: [!!python/tuple ['objective', ['reg:absoluteerror', 'reg:squarederror',  'reg:gamma']]]
