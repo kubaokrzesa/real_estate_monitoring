@@ -17,7 +17,7 @@ def normalize_categoricals(text: Optional[str]) -> str:
     Returns:
         str: The normalized text.
     """
-    if text is None or pd.isna(text):
+    if text is None or pd.isna(text) or text.isspace() or text == '':
         clean_text = 'MISSING'
     else:
         # remove Polish letters
@@ -81,8 +81,16 @@ def convert_col_to_num(val_str: Union[str, int, float]) -> Union[int, float]:
         return np.nan
     elif type(val_str) in (int, float):
         return val_str
+    elif type(val_str) == str:
+        val_str = val_str
     else:
-        numbers = re.findall('[\d,]+', val_str)
+        return np.nan
+
+    numbers = re.findall(r'[\d,.]+', val_str)
+
+    if len(numbers) == 0:
+        return np.nan
+    else:
         numbers = ''.join(numbers)
         numbers = numbers.replace(',', '.')
         int_val = float(numbers)
@@ -99,7 +107,7 @@ def separate_lables(x: Optional[str]) -> List[str]:
     Returns:
         List[str]: A list of separated and normalized labels.
     """
-    if x is None or pd.isna(x):
+    if x is None or pd.isna(x) or x == '' or x == 'MISSING':
         otp = ['NO']
     else:
         otp = x.split(',')
@@ -118,6 +126,12 @@ def extract_labels(df: pd.DataFrame, var: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame with the transformed label data.
     """
+    if len(df) == 0:
+        raise ValueError("Input DataFrame is empty")
+    if var not in df.columns:
+        raise ValueError(f"{var} not present in columns")
+    if 'link' not in df.columns:
+        raise ValueError(f"df has not link column")
 
     df_lab = df[['link', var]].set_index('link')
 
