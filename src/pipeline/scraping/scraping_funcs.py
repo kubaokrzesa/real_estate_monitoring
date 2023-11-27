@@ -34,7 +34,6 @@ def extract_info_from_response(html: str, url: str) -> Dict[str, Any]:
 
         result['area'] = selector.xpath('//div[@aria-label="Powierzchnia"]/div[2]/div[1]/text()').get()
         result['ownership_type'] = selector.xpath('//div[@aria-label="Forma własności"]/div[2]/div[1]/text()').get()
-        result['n_rooms'] = soup.find('div', attrs={"aria-label": "Liczba pokoi"}).find('div', attrs={"class": 'css-1wi2w6s enb64yk5'}).get_text(strip=True)
         result['state'] = selector.xpath('//div[@aria-label="Stan wykończenia"]/div[2]/div[1]/text()').get()
         result['floor'] = selector.xpath('//div[@aria-label="Piętro"]/div[2]/div[1]/text()').get()
         result['rent'] = selector.xpath('//div[@aria-label="Czynsz"]/div[2]/div[1]/text()').get()
@@ -58,6 +57,18 @@ def extract_info_from_response(html: str, url: str) -> Dict[str, Any]:
         result['building_material'] = selector.xpath('//div[@aria-label="Materiał budynku"]/div[2]/div[1]/text()').get()
     except Exception as e:
         print(f"Exception occured: {e}")
+
+    # extracting with beautiful soup
+    # extracting n_room
+    n_rooms_div = soup.find('div', attrs={"aria-label": "Liczba pokoi"})
+    if n_rooms_div is None:
+        result['n_rooms'] = None
+    else:
+        n_rooms_div = n_rooms_div.find('div', attrs={"class": 'css-1wi2w6s enb64yk5'})
+        if n_rooms_div is not None:
+            result['n_rooms'] = n_rooms_div.get_text(strip=True)
+        else:
+            result['n_rooms'] = None
 
     # extracting description
     description_div = soup.find('div', class_='css-1wekrze e1lbnp621')
