@@ -8,6 +8,7 @@ from urllib.parse import unquote
 import zipfile
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
+from src.paths import shape_files_directory
 
 
 logger = Logger(__name__).get_logger()
@@ -117,7 +118,7 @@ def get_shp_files(shp_urls: List[str], shp_files_directory_name: str) -> None:
 
 
 if __name__ == "__main__":
-    get_shp_files(config.shp_urls, config.shp_files_directory_name)
+    get_shp_files(config.shp_urls, shape_files_directory)
 
 
 

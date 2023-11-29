@@ -13,6 +13,7 @@ from src.utils.get_config import config
 from src.special_steps.shp_file_downloader import get_shp_files
 from src.db.sqlite_creation import create_sqlite_db
 from src.utils.db_utils import check_if_survey_exists
+from src.utils.funcs import check_if_shp_exists
 import src.paths as paths
 
 from src.pipeline.scraping.async_scraping import AsyncScraper
@@ -24,14 +25,15 @@ db = config.sqlite_db
 
 os.makedirs(paths.data_directory, exist_ok=True)
 os.makedirs(paths.models_directory, exist_ok=True)
+if not check_if_shp_exists(paths.shape_files_directory):
+    get_shp_files(config.shp_urls, paths.shape_files_directory)
+else:
+    logger.info(f"Shapefiles already downloaded")
+
 create_sqlite_db(db)
 
 # automate creation
 #mlflow ui --backend-store-uri sqlite:///mlflow.db
-
-# TODO write automatic checker
-if config.module_get_shp_files:
-    get_shp_files(config.shp_urls, config.shp_files_directory_name)
 
 
 if config.new_survey:

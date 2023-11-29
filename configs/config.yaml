@@ -1,8 +1,8 @@
 # if new survey, provide survey params
 new_survey: True
-survey_type: 'test' # 'incremental' #  # 'test' # 'full', 'incremental', 'test_max_page'
+survey_type: incremental #'incremental' # 'incremental' #  # 'test' # 'full', 'test_max_page'
 location: 'warsaw'
-max_page_num: 2 #243 # limit page num for testing purposes
+max_page_num: 2 # limit page num for testing purposes
 config:
 use_async_links_scraping: True
 
@@ -17,14 +17,11 @@ module_lat_lon_coding: True
 module_extract_geo_features: True
 module_make_dummy_geo_features: True
 
-# needed only the first time
-module_get_shp_files: False
-
 sqlite_db: "data/real_estate.db"
 
 # scraping
 # WARNING: can end up in 403 responses if used on too many links
-use_async_scraping: True #True
+use_async_scraping: False #True
 
 base_link: "https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/wiele-lokalizacji?locations=%5Bmazowieckie%2Cmazowieckie%2Fwarszawa%2Fwarszawa%2Fwarszawa%5D&viewType=listing&limit=72&page={}"
 
@@ -36,7 +33,6 @@ nominatim_timeout: 10
 nominatim_user_agent: "kubaokrzesa"
 
 # shpefiles
-shp_files_directory_name: "shp_files"
 shp_urls: ["https://www.gis-support.pl/downloads/2022/gminy.zip",
   "https://www.gis-support.pl/downloads/2022/powiaty.zip",
 "https://www.gis-support.pl/downloads/2022/jednostki_ewidencyjne.zip"]

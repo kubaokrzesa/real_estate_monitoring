@@ -6,6 +6,7 @@ from typing import Any
 from src.utils.setting_logger import Logger
 from src.utils.get_config import config
 from src.pipeline.pipeline_step_abc import PipelineStepABC
+from src.paths import metro_locations_path, jed_ewidencyjne_path, gminy_path, powiaty_path
 
 logger = Logger(__name__).get_logger()
 
@@ -32,16 +33,15 @@ class GeoFeatureExtractor(PipelineStepABC):
     """
     def __init__(self, db: str, survey_id: str):
         super().__init__(db=db, survey_id=survey_id)
-        # TODO move to paths
-        self.powiaty = gpd.read_file("shp_files/powiaty")[["JPT_NAZWA_", "geometry"]]
-        self.gminy = gpd.read_file("shp_files/gminy")[["JPT_NAZWA_", "geometry"]]
-        self.jednostki_ewidencyjne = gpd.read_file("shp_files/jednostki_ewidencyjne")[["JPT_NAZWA_", "geometry"]]
+        self.powiaty = gpd.read_file(powiaty_path)[["JPT_NAZWA_", "geometry"]]
+        self.gminy = gpd.read_file(gminy_path)[["JPT_NAZWA_", "geometry"]]
+        self.jednostki_ewidencyjne = gpd.read_file(jed_ewidencyjne_path)[["JPT_NAZWA_", "geometry"]]
         self.warszawa_dzielnice = self.jednostki_ewidencyjne.sjoin(self.gminy[self.gminy.JPT_NAZWA_ == "Warszawa"],
                                                                    how="inner", predicate='within')
         self.warszawa_dzielnice = self.warszawa_dzielnice.drop(columns=['index_right', 'JPT_NAZWA__right'])
         self.warszawa_dzielnice = self.warszawa_dzielnice.rename(columns={'JPT_NAZWA__left': 'warsaw_district'})
 
-        self.metro_stations = pd.read_csv("assets/metro_locations.csv", sep=';')
+        self.metro_stations = pd.read_csv(metro_locations_path, sep=';')
         self.metro_stations = convert_df_to_geo(self.metro_stations, self.warszawa_dzielnice.crs, base_crs='EPSG:4326')
 
         self.warsaw_center = Point(21.006209576726654, 52.230931183433256)
