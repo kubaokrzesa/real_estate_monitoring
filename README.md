@@ -30,3 +30,10 @@ find a best offer and understand the factors diving the price.
 # Access experiment tracking in MLflow with following command:
 mlflow server --backend-store-uri=sqlite:///mlflow.db --default-artifact-root=file:mlruns --host 0.0.0.0 --port 500
 
+
+# installing airflow
+Make the script executable by running chmod +x install_airflow.sh.
+Run the script with ./install_airflow.sh.
+
+# change dag directory
+nano ~/airflow/airflow.cfg
