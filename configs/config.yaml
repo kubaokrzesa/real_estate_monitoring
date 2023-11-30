@@ -3,7 +3,6 @@ new_survey: True
 survey_type: incremental #'incremental' # 'incremental' #  # 'test' # 'full', 'test_max_page'
 location: 'warsaw'
 max_page_num: 2 # limit page num for testing purposes
-config:
 use_async_links_scraping: True
 
 # if you want to continue survey, choose which one
